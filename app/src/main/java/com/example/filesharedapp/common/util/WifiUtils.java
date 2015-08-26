@@ -91,11 +91,11 @@ public class WifiUtils {
                     String.class,
                     Context.class);
             //返回热点打开状态
-            return（Boolean)method.invoke(apConfig, ssid, preSharedKey, context);
+            //return（Boolean)method.invoke(apConfig, ssid, preSharedKey, context);
         }catch (Exception e){
             return false;
         }
-
+        return true;
 
     }
 
