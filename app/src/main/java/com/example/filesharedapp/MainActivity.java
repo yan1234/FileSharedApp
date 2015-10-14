@@ -1,38 +1,60 @@
 package com.example.filesharedapp;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.os.Handler;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+
+import com.example.filesharedapp.app.HomeMainActivity;
 
 
-public class MainActivity extends ActionBarActivity {
+/**
+ * 启动页
+ * @author yanling
+ * @date 2015-10-14 16:26
+ */
+public class MainActivity extends Activity {
+
+    //定义变量标志程序第一次安装启动，0：第一次启动；1：已经启动过
+    private int welcome_first;
+    //定义是否是第一次安装保存状态
+    private SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //设置去掉标题头
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+        //得到sp对象
+        sp = getSharedPreferences("welcome", this.MODE_WORLD_WRITEABLE);
+        //得到是否第一次安装的标志
+        welcome_first = sp.getInt("welcome_first", 0);
+
+        //启动页面停留2s后直接跳转到主页
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //程序第一次运行，跳转到欢迎页
+                if (welcome_first == 0) {
+                    //得到sp编辑对象并设置标志变量
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putInt("welcome_first", 1);
+                    editor.commit();
+                    startActivity(new Intent(MainActivity.this, WelcomeActivity.class));
+                    MainActivity.this.finish();
+                }//直接跳转到主页
+                else if (welcome_first == 1) {
+                    startActivity(new Intent(MainActivity.this, HomeMainActivity.class));
+                    MainActivity.this.finish();
+                }
+
+            }
+        }, 2000);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.activity_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 }
