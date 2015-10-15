@@ -17,12 +17,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".app.HomeMainActivity"
-            android:label="@string/title_activity_home_main" >
-        </activity>
-        <activity
             android:name=".WelcomeActivity"
             android:label="@string/title_activity_welcome" >
+        </activity>
+        <activity
+            android:name=".app.HomeMainActivity"
+            android:label="@string/title_activity_home_main" >
         </activity>
     </application>
 

@@ -1,4 +1,4 @@
-package com.example.filesharedapp.common.util;
+package com.example.filesharedapp.util;
 
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;

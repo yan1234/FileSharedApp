@@ -1,17 +1,11 @@
 <resources>
-    <string name="app_name">FileSharedApp</string>
+    <string name="app_name">文件共享大师</string>
 
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+
+    <string name="title_activity_welcome">WelcomeActivity</string>
     <string name="title_activity_home_main">HomeMainActivity</string>
 
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
-
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <string name="action_example">Example action</string>
-    <string name="title_activity_welcome">WelcomeActivity</string>
+    <string name="drawer_open">open drawer</string>
+    <string name="drawer_close">close drawer</string>
 </resources>
