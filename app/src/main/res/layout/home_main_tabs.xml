@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="50dp"
+    android:background="#000000"
+    android:orientation="horizontal">
+
+    <!-- 应用 -->
+    <LinearLayout
+        android:id="@+id/tab0"
+        style="@style/main_tab_linear">
+        <TextView
+            android:id="@+id/tab0_tv"
+            style="@style/main_tab_text"
+            android:text="@string/main_tab_app"/>
+
+        <!-- 线条 -->
+        <View
+            android:id="@+id/tab0_line"
+            style="@style/main_tab_line"/>
+    </LinearLayout>
+    <!-- 图片 -->
+    <LinearLayout
+        android:id="@+id/tab1"
+        style="@style/main_tab_linear">
+        <TextView
+            android:id="@+id/tab1_tv"
+            style="@style/main_tab_text"
+            android:text="@string/main_tab_photo"/>
+        <!-- 线条 -->
+        <View
+            android:id="@+id/tab1_line"
+            style="@style/main_tab_line"/>
+    </LinearLayout>
+    <!-- 音乐 -->
+    <LinearLayout
+        android:id="@+id/tab2"
+        style="@style/main_tab_linear">
+        <TextView
+            android:id="@+id/tab2_tv"
+            style="@style/main_tab_text"
+            android:text="@string/main_tab_music"/>
+        <!-- 线条 -->
+        <View
+            android:id="@+id/tab2_line"
+            style="@style/main_tab_line"/>
+    </LinearLayout>
+    <!-- 视频 -->
+    <LinearLayout
+        android:id="@+id/tab3"
+        style="@style/main_tab_linear">
+        <TextView
+            android:id="@+id/tab3_tv"
+            style="@style/main_tab_text"
+            android:text="@string/main_tab_video"/>
+        <!-- 线条 -->
+        <View
+            android:id="@+id/tab3_line"
+            style="@style/main_tab_line"/>
+    </LinearLayout>
+    <!-- 其他 -->
+    <LinearLayout
+        android:id="@+id/tab4"
+        style="@style/main_tab_linear">
+        <TextView
+            android:id="@+id/tab4_tv"
+            style="@style/main_tab_text"
+            android:text="@string/main_tab_other"/>
+        <!-- 线条 -->
+        <View
+            android:id="@+id/tab4_line"
+            style="@style/main_tab_line"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
+
+

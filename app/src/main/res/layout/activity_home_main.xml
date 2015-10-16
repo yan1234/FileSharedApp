@@ -12,27 +12,24 @@
         android:layout_height="match_parent" >
 
         <!-- The main content view -->
-        <FrameLayout
-            android:id="@+id/content_frame"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <!-- 页面头部 -->
+            <include layout="@layout/activity_header" />
+
+            <!-- 首页tab选项卡 -->
+            <include layout="@layout/home_main_tabs" />
+
+            <!-- viewpager 内容区 -->
+            <android.support.v4.view.ViewPager
+                android:id="@+id/viewPager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="match_parent"/>
 
-                <!-- 公共标题头 -->
-                <include layout="@layout/activity_header" />
-
-                <Button
-                    android:id="@+id/btn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="open" />
-            </LinearLayout>
-
-        </FrameLayout>
+        </LinearLayout>
 
         <!-- The navigation drawer -->
 

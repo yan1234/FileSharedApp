@@ -8,4 +8,12 @@
 
     <string name="drawer_open">open drawer</string>
     <string name="drawer_close">close drawer</string>
+
+    <!-- 首页tab切换选项卡 -->
+    <string name="main_tab_app">应用</string>
+    <string name="main_tab_photo">相册</string>
+    <string name="main_tab_music">音乐</string>
+    <string name="main_tab_video">视频</string>
+    <string name="main_tab_other">其他</string>
+
 </resources>
