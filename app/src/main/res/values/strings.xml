@@ -16,4 +16,7 @@
     <string name="main_tab_video">视频</string>
     <string name="main_tab_other">其他</string>
 
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello app fragment</string>
+
 </resources>

@@ -1,10 +1,9 @@
 package com.example.filesharedapp.app;
 
-import android.app.Activity;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -14,6 +13,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.example.filesharedapp.R;
+import com.example.filesharedapp.app.fragment.AppFragment;
+import com.example.filesharedapp.app.fragment.MusicFragment;
+import com.example.filesharedapp.app.fragment.OtherFragment;
+import com.example.filesharedapp.app.fragment.PhotoFragment;
+import com.example.filesharedapp.app.fragment.VideoFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +63,9 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
         initView();
         //初始化事件
         initEvent();
+
+        //设置初始的页面为图片页
+        selectPage(1);
     }
 
     /**
@@ -77,12 +84,21 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
         otherLayout = (LinearLayout)this.findViewById(R.id.tab4);
         //载入头部的切换线条
         line_tab0 = (View)this.findViewById(R.id.tab0_line);
-        line_tab1 = (View)this.findViewById(R.id.tab0_line);
-        line_tab2 = (View)this.findViewById(R.id.tab0_line);
-        line_tab3 = (View)this.findViewById(R.id.tab0_line);
-        line_tab4 = (View)this.findViewById(R.id.tab0_line);
-
-
+        line_tab1 = (View)this.findViewById(R.id.tab1_line);
+        line_tab2 = (View)this.findViewById(R.id.tab2_line);
+        line_tab3 = (View)this.findViewById(R.id.tab3_line);
+        line_tab4 = (View)this.findViewById(R.id.tab4_line);
+        //添加fragment
+        AppFragment appFragment = new AppFragment();
+        PhotoFragment photoFragment = new PhotoFragment();
+        MusicFragment musicFragment = new MusicFragment();
+        VideoFragment videoFragment = new VideoFragment();
+        OtherFragment otherFragment = new OtherFragment();
+        fragments.add(appFragment);
+        fragments.add(photoFragment);
+        fragments.add(musicFragment);
+        fragments.add(videoFragment);
+        fragments.add(otherFragment);
 
     }
 
@@ -105,6 +121,30 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
             }
         };
         mViewPager.setAdapter(mAdapter);
+        //为viewPager添加页面改变事件
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                //设置线条样式
+                selectPage(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        //给每个选项卡设置点击事件
+        appLayout.setOnClickListener(this);
+        photoLayout.setOnClickListener(this);
+        musicLayout.setOnClickListener(this);
+        videoLayout.setOnClickListener(this);
+        otherLayout.setOnClickListener(this);
     }
 
     @Override
@@ -115,6 +155,63 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
                 //触发抽屉事件
                 mDrawerLayout.openDrawer(Gravity.LEFT);
                 break;
+            case R.id.tab0:
+                selectPage(0);
+                break;
+            case R.id.tab1:
+                selectPage(1);
+                break;
+            case R.id.tab2:
+                selectPage(2);
+                break;
+            case R.id.tab3:
+                selectPage(3);
+                break;
+            case R.id.tab4:
+                selectPage(4);
+                break;
+
         }
+    }
+
+    /**
+     * 根据位置设置显示的页面
+     * @param position，初始位置从0开始
+     */
+    private void selectPage(int position){
+        //首先重置底部图片
+        resetImage();
+        //根据position设置ViewPager的当前页面
+        mViewPager.setCurrentItem(position);
+        switch (position){
+            case 0:
+                line_tab0.setVisibility(View.VISIBLE);
+                break;
+            case 1:
+                line_tab1.setVisibility(View.VISIBLE);
+                break;
+            case 2:
+                line_tab2.setVisibility(View.VISIBLE);
+                break;
+            case 3:
+                line_tab3.setVisibility(View.VISIBLE);
+                break;
+            case 4:
+                line_tab4.setVisibility(View.VISIBLE);
+                break;
+        }
+
+    }
+
+    /**
+     * 隐藏其他tab的线条
+     */
+    private void resetImage() {
+        // TODO Auto-generated method stub
+        line_tab0.setVisibility(View.INVISIBLE);
+        line_tab1.setVisibility(View.INVISIBLE);
+        line_tab2.setVisibility(View.INVISIBLE);
+        line_tab3.setVisibility(View.INVISIBLE);
+        line_tab4.setVisibility(View.INVISIBLE);
     }
 }
