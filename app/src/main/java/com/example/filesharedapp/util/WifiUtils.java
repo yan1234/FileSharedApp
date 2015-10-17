@@ -16,6 +16,22 @@ import java.util.List;
 public class WifiUtils {
 
 
+    /**
+     * 开启wifi功能（true:开启，false:关闭）
+     * @param context, 上下文
+     * @param flag, wifi功能的标志
+     */
+    public static void setWifiStates(Context context, boolean flag){
+        WifiManager wifiMag = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+        wifiMag.setWifiEnabled(flag);
+    }
+
+    /**
+     * 连接对应的wifi
+     * @param ssid，wifi名
+     * @param preSharedKey，wifi密码
+     * @param context，上下文
+     */
     public static void connectWifi(String ssid, String preSharedKey, Context context){
         //得到wifi管理器
         WifiManager wifiMag = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
@@ -42,7 +58,7 @@ public class WifiUtils {
      * @param preSharedKey, wifi连接的密码
      * @return， 返回设置的参数
      */
-    public static WifiConfiguration setWifiConfig(String ssid, String preSharedKey){
+    private static WifiConfiguration setWifiConfig(String ssid, String preSharedKey){
         //定义wifi配置参数
         WifiConfiguration wifiConfig = new WifiConfiguration();
         //设置ssid

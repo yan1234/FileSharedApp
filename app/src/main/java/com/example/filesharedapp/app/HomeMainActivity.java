@@ -11,6 +11,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.fragment.AppFragment;
@@ -53,6 +54,7 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
     private View line_tab2;
     private View line_tab3;
     private View line_tab4;
+
 
 
     @Override
