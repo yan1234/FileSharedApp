@@ -3,7 +3,7 @@
     android:layout_height="match_parent" >
 
     <!-- 扫码预览界面 -->
-    <com.example.scanlibrary.CameraPreview
+    <SurfaceView
         android:id="@+id/surface_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

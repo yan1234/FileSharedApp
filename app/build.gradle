@@ -22,5 +22,6 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.1.1'
-    compile files('E:/AndroidStudioProjects/FileSharedApp/libs/core-3.2.1.jar')
+    compile 'com.android.support:support-v4:22.1.1'
+    compile project(':scanlibrary')
 }
