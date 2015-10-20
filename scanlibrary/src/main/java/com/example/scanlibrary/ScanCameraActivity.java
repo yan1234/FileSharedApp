@@ -1,131 +1,122 @@
 package com.example.scanlibrary;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.hardware.Camera;
-import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PreviewCallback;
-import android.hardware.Camera.Parameters;
-import android.hardware.Camera.Size;
 
+
+import android.media.Image;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 
-import android.view.SurfaceHolder;
+import com.google.zxing.Binarizer;
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.DecodeHintType;
+import com.google.zxing.LuminanceSource;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.PlanarYUVLuminanceSource;
+import com.google.zxing.Result;
+import com.google.zxing.common.HybridBinarizer;
 
-import java.io.IOException;
-import java.util.List;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 
-public class ScanCameraActivity extends Activity implements SurfaceHolder.Callback {
+public class ScanCameraActivity extends Activity {
 
     private static final String TAG = ScanCameraActivity.class.getSimpleName();
 
     //定义相机对象
     private Camera mCamera = null;
-    //设置相机预览回调
-    private PreviewCallback previewCallback = null;
-    //设置自动聚焦回调
-    private AutoFocusCallback autoFocusCallback = null;
+    private CameraPreview mCameraPreview;
+    //定义扫码框对象
+    private FinderView finderView;
+
+    private PreviewCallback previewCallback = new PreviewCallback() {
+        @Override
+        public void onPreviewFrame(byte[] data, Camera camera) {
+
+            Camera.Parameters parameters = camera.getParameters();
+            Camera.Size size = parameters.getPreviewSize();
+            Log.i(TAG, "调用相机预览》》》");
+            Rect scanImageRect = finderView.getScanImageRect(size.width, size.height);
+            //取得指定范围的帧的数据
+            PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(
+                    data,
+                    size.width, size.height,
+                    scanImageRect.left, scanImageRect.top,
+                    scanImageRect.width(),scanImageRect.height()
+                    ,false);
+            //取得灰度图
+            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+            MultiFormatReader reader = new MultiFormatReader();
+            Map<DecodeHintType, Object> hints = new HashMap<DecodeHintType, Object>();
+            hints.put(DecodeHintType.CHARACTER_SET, "UTF-8");
+            try {
+                Result result = reader.decode(bitmap, hints);
+                Log.e(TAG, "结果为：》》》》》》》" + result.getBarcodeFormat()+">>>>>>>"+result.getText());
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_camera);
+        //初始化界面
+        initView();
+    }
+
+    /**
+     * 初始化界面
+     */
+    private void initView(){
+        mCameraPreview = (CameraPreview)findViewById(R.id.camera_preview);
+        finderView = (FinderView)findViewById(R.id.finder_view);
+    }
+
+    /**
+     * 初始化事件
+     */
+    private void initEvent(){
         mCamera = Camera.open();
+        mCameraPreview.setCamera(mCamera);
+        mCameraPreview.setPreviewCallback(previewCallback);
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        //初始化相机资源
-        if (mCamera == null){
-            mCamera = Camera.open();
-        }
-        try {
-            mCamera.setPreviewDisplay(holder);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e(TAG, e.getMessage());
-            //释放相机资源
-            if (mCamera != null){
-                mCamera.release();
-            }
-            mCamera = null;
-        }
+    public void onResume(){
+        super.onResume();
+        //初始化事件
+        initEvent();
     }
-
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        if (holder.getSurface() == null){
-            return;
-        }
-        //停止预览
-        mCamera.stopPreview();
-        //设置预览参数
-        try {
-            mCamera.setDisplayOrientation(90);
-            mCamera.setPreviewDisplay(holder);
-            //设置预览回调
-            mCamera.setPreviewCallback(previewCallback);
-            //设置相机预览参数
-            setCameraParameters();
-            //开始预览
-            mCamera.startPreview();
-            //设置自动对焦回调
-            mCamera.autoFocus(autoFocusCallback);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void onPause(){
+        super.onPause();
+        releaseCamera();
     }
-
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        //关闭闪光灯
-        closeFlashlight();
+    public void onDestroy(){
+        super.onDestroy();
         //释放相机资源
         releaseCamera();
     }
 
-    /**
-     * 设置相机参数
-     */
-    private void setCameraParameters(){
-        if (mCamera != null){
-            Parameters p = mCamera.getParameters();
-            Size picSize = p.getPictureSize();
-            Size previewSize = getOptionalPreviewSize(p.getSupportedPreviewSizes(), (double) picSize.width / picSize.height);
-            if(previewSize != null){
-                p.setPreviewSize(previewSize.width,previewSize.height);
-                mCamera.setParameters(p);
-            }
-        }
-    }
-
-    /**
-     * 设置合适的预览参数
-     * @param sizes， 参数列表
-     * @param targetRatio，比对标准
-     * @return
-     */
-    private Size getOptionalPreviewSize(List<Size> sizes, double targetRatio){
-        if (sizes == null){
-            return null;
-        }
-        Size optionalSize = null;
-        for (Size size : sizes) {
-            if (size.width > 700 && size.width < 100) {
-                optionalSize = size;
-                break;
-            }
-        }
-        return optionalSize;
-    }
     /**
      * 释放相机资源
      */
     private void releaseCamera(){
         if (mCamera != null){
             mCamera.setPreviewCallback(null);
-            mCamera.release();
+            mCamera.autoFocus(null);
+            mCameraPreview.setCamera(null);
             mCamera = null;
         }
     }

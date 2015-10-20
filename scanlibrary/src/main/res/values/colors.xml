@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 扫码设计颜色 -->
+    <color name="cover_color">#80000000</color>
+
+</resources>
