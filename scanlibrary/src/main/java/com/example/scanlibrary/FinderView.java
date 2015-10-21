@@ -18,7 +18,9 @@ public class FinderView extends View{
     public static final String TAG = FinderView.class.getSimpleName();
 
     //设置移动延时
-    private static final long ANIMATION_DELAY = 30;
+    private static final long ANIMATION_DELAY = 10;
+    //设置移动的距离
+    private static final int MOVE_HEIGHT = 30;
 
     private Context mContext;
     //定义Paint对象
@@ -71,7 +73,6 @@ public class FinderView extends View{
         scan_kuang.setBounds(middleRect);
         scan_kuang.draw(canvas);
         if (lineRect.bottom < middleRect.bottom) {
-            scan_line.setBounds(lineRect);
             /**
              * postInvalidateDelayed每次刷新的时候，
              * 只要线的底部小于框的底部，就会进入此方法，
@@ -79,11 +80,12 @@ public class FinderView extends View{
              * lineHeight是个固定值10，所以，
              * 在这个地方完成了中间横线的上下移动！！！！
              */
-            lineRect.top = lineRect.top + lineHeight / 2;
-            lineRect.bottom = lineRect.bottom + lineHeight / 2;
+            lineRect.top = lineRect.top + MOVE_HEIGHT / 2;
+            lineRect.bottom = lineRect.bottom + MOVE_HEIGHT / 2;
+            scan_line.setBounds(lineRect);
         } else {
             lineRect.set(middleRect);
-            lineRect.bottom = lineRect.top + lineHeight;
+            lineRect.bottom = lineRect.top + MOVE_HEIGHT;
             scan_line.setBounds(lineRect);
         }
         scan_line.draw(canvas);

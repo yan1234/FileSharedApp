@@ -46,21 +46,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     /**
-     * 初始化相机
-     * @param camera
-     */
-    public void setCamera(Camera camera){
-        //初始化相机
-        this.mCamera = camera;
-        if (mCamera != null){
-            //得到尺寸
-            mSupportedPreviewSizes = mCamera.getParameters()
-                    .getSupportedPreviewSizes();
-            requestLayout();
-        }
-    }
-
-    /**
      * 设置自动聚焦回调
      * @param cb
      */
@@ -80,6 +65,14 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
      * 初始化
      */
     private void init(){
+        //得到相机对象
+        this.mCamera = Camera.open();
+        if (mCamera != null){
+            //得到尺寸
+            mSupportedPreviewSizes = mCamera.getParameters()
+                    .getSupportedPreviewSizes();
+            requestLayout();
+        }
         //初始化holder
         mHolder = getHolder();
         mHolder.addCallback(this);
@@ -143,6 +136,41 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         if (mCamera != null){
             mCamera.stopPreview();
         }
+    }
+
+    /**
+     * 得到相机对象
+     */
+    public Camera getCamera(){
+        return this.mCamera;
+    }
+    /**
+     * 释放相机资源
+     */
+    public void releaseCamera(){
+        if (mCamera != null){
+            mCamera.setPreviewCallback(null);
+            mCamera.autoFocus(null);
+            mCamera.release();
+            mCamera = null;
+        }
+    }
+
+    /**
+     * 设置闪光灯状态
+     * @param flag true:表示开启闪光灯，false：关闭闪光灯
+     */
+    public void setFlashlightStatus(boolean flag){
+        Camera.Parameters params = mCamera.getParameters();
+        String flashMode = Camera.Parameters.FLASH_MODE_TORCH;
+        //表示关闭闪光灯
+        if (!flag){
+            flashMode = Camera.Parameters.FLASH_MODE_OFF;
+        }
+
+        //将闪光灯按钮置为关闭状态
+        params.setFlashMode(flashMode);
+        mCamera.setParameters(params);
     }
 
     @Override
