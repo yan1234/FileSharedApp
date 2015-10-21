@@ -12,18 +12,27 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 
+import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Binarizer;
 import com.google.zxing.BinaryBitmap;
+import com.google.zxing.ChecksumException;
 import com.google.zxing.DecodeHintType;
+import com.google.zxing.FormatException;
 import com.google.zxing.LuminanceSource;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.PlanarYUVLuminanceSource;
+import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.Reader;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
+import com.google.zxing.oned.MultiFormatOneDReader;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 
@@ -44,24 +53,36 @@ public class ScanCameraActivity extends Activity {
             Camera.Parameters parameters = camera.getParameters();
             Camera.Size size = parameters.getPreviewSize();
             Log.i(TAG, "调用相机预览》》》");
-            Rect scanImageRect = finderView.getScanImageRect(size.width, size.height);
+            //Rect scanImageRect = finderView.getScanImageRect(size.width, size.height);
             //取得指定范围的帧的数据
-            PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(
+            LuminanceSource source = new PlanarYUVLuminanceSource(
                     data,
                     size.width, size.height,
-                    scanImageRect.left, scanImageRect.top,
-                    scanImageRect.width(),scanImageRect.height()
-                    ,false);
+                    0, 0, size.width, size.height, false);
             //取得灰度图
             BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-            MultiFormatReader reader = new MultiFormatReader();
             Map<DecodeHintType, Object> hints = new HashMap<DecodeHintType, Object>();
+            Collection<BarcodeFormat> decodeFormats = EnumSet.noneOf(BarcodeFormat.class);
+            decodeFormats.add(BarcodeFormat.QR_CODE);
+            decodeFormats.add(BarcodeFormat.CODE_128);
+            hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
             hints.put(DecodeHintType.CHARACTER_SET, "UTF-8");
+            Reader reader = new MultiFormatReader();
             try {
-                Result result = reader.decode(bitmap, hints);
+                Result result = null;
+                try {
+                    result = reader.decode(bitmap, hints);
+                } catch (ChecksumException e) {
+                    e.printStackTrace();
+                } catch (FormatException e) {
+                    e.printStackTrace();
+                }
                 Log.e(TAG, "结果为：》》》》》》》" + result.getBarcodeFormat()+">>>>>>>"+result.getText());
             } catch (NotFoundException e) {
                 e.printStackTrace();
+            } finally {
+                //重置
+                reader.reset();
             }
         }
     };
