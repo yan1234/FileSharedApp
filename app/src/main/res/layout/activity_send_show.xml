@@ -1,0 +1,38 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    tools:context="com.example.filesharedapp.app.send.SendShowActivity">
+
+    <!-- 公共头部 -->
+    <include layout="@layout/activity_header" />
+
+    <!-- 中间的条码和提示信息 -->
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        <!-- 生成的文件传输的二维码 -->
+        <ImageView
+            android:id="@+id/send_image_qrcode"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_centerInParent="true" />
+
+        <!-- 文件提示信息 -->
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="80dp"
+            android:layout_below="@+id/send_image_qrcode"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/send_text_tips"
+                android:layout_width="200sp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+</>

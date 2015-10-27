@@ -12,6 +12,7 @@ import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -45,6 +46,8 @@ public class ScanCameraActivity extends Activity {
 
     //定义扫码成功后Intent返回的resultCode标志
     public static final int SCAN_OK = 100;
+    public static final int SCAN_CANCEL = -100;
+
     //定义扫码结果的key值变量
     public static final String SCAN_CODE = "SCAN_CODE";
 
@@ -130,15 +133,32 @@ public class ScanCameraActivity extends Activity {
     @Override
     public void onPause(){
         super.onPause();
+        //释放相机资源
         mCameraPreview.releaseCamera();
     }
     @Override
     public void onDestroy(){
         super.onDestroy();
-        //释放相机资源
-        mCameraPreview.releaseCamera();
     }
 
-
-
+    /**
+     * 这里重写onKeyDown函数，监听扫码界面的返回按钮，避免setResult的值为空
+     * @param keyCode
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        //判断是否是按钮按钮
+        if (keyCode == KeyEvent.KEYCODE_BACK){
+            Intent intent = new Intent();
+            Bundle bundle = new Bundle();
+            //返回空串
+            bundle.putString(SCAN_CODE, "");
+            intent.putExtras(bundle);
+            setResult(SCAN_CANCEL, intent);
+            ScanCameraActivity.this.finish();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 }

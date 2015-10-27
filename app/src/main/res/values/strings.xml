@@ -20,5 +20,7 @@
     <string name="hello_blank_fragment">Hello app fragment</string>
     <string name="title_activity_test">TestActivity</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_send_show">SendShowActivity</string>
+    <string name="title_activity_base">BaseActivity</string>
 
 </resources>

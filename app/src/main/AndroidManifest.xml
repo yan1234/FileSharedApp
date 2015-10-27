@@ -4,10 +4,13 @@
 
     <!-- 系统权限设置 -->
 
+
     <!-- 读取wifi状态 -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <!-- 改变wifi连接 -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <!-- 网络连接所需的权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -17,11 +20,14 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >
-            <!--<intent-filter>
+
+            <!--
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
+            </intent-filter>
+            -->
         </activity>
         <activity
             android:name=".WelcomeActivity"
@@ -39,6 +45,14 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".app.send.SendShowActivity"
+            android:label="@string/title_activity_send_show" >
+        </activity>
+        <activity
+            android:name=".framework.ui.base.BaseActivity"
+            android:label="@string/title_activity_base" >
         </activity>
     </application>
 
