@@ -29,10 +29,11 @@
                 android:id="@+id/send_text_tips"
                 android:layout_width="200sp"
                 android:layout_height="match_parent"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:gravity="center"/>
         </LinearLayout>
 
     </RelativeLayout>
 
 
-</>
+</LinearLayout>

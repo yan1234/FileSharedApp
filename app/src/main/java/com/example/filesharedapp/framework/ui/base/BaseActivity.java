@@ -10,9 +10,6 @@ import android.widget.TextView;
 
 import com.example.filesharedapp.R;
 
-import org.w3c.dom.Text;
-
-import java.util.zip.Inflater;
 
 /**
  * 基类的Activity，主要用来页面公共模块处理，比如统一的标题头
@@ -68,6 +65,14 @@ public class BaseActivity extends Activity {
         if (header_operate != null){
             header_operate.setOnClickListener(new ClickListener());
         }
+    }
+
+    /**
+     * 设置头部标题
+     * @param title
+     */
+    protected void setTitle(String title){
+        header_title.setText(title);
     }
 
     /**
