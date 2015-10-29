@@ -38,4 +38,11 @@
         <item name="android:dividerHeight">0dp</item>
     </style>
 
+    <!-- 首页快捷按钮样式（弹出蒙层，发送，接收按钮）-->
+    <style name="main_frame_shortcut_image">
+        <item name="android:layout_width">80dp</item>
+        <item name="android:layout_height">80dp</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
 </resources>

@@ -1,40 +1,92 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="0dp"
     tools:context=".HomeMainActivity"
-    android:orientation="vertical">
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:padding="0dp">
 
-    <android.support.v4.widget.DrawerLayout
-        android:id="@+id/drawer_layout"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:padding="0dp"
+        android:orientation="vertical">
 
-        <!-- The main content view -->
-        <LinearLayout
+        <android.support.v4.widget.DrawerLayout
+            android:id="@+id/drawer_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="match_parent" >
 
-            <!-- 页面头部 -->
-            <include layout="@layout/activity_header" />
-
-            <!-- 首页tab选项卡 -->
-            <include layout="@layout/home_main_tabs" />
-
-            <!-- viewpager 内容区 -->
-            <android.support.v4.view.ViewPager
-                android:id="@+id/viewPager"
+            <!-- The main content view -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-        </LinearLayout>
+                <!-- 页面头部 -->
+                <include layout="@layout/activity_header" />
 
-        <!-- The navigation drawer -->
-        <include layout="@layout/activity_left_drawer" />
+                <!-- 首页tab选项卡 -->
+                <include layout="@layout/home_main_tabs" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <!-- viewpager 内容区 -->
+                    <android.support.v4.view.ViewPager
+                        android:id="@+id/viewPager"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
+                    <!-- 主页悬浮图标 -->
+                    <ImageView
+                        android:id="@+id/home_shortcut_show"
+                        style="@style/main_frame_shortcut_image"
+                        android:layout_gravity="bottom|right"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginRight="10dp"
+                        android:src="@mipmap/ic_launcher"/>
+                </FrameLayout>
+
+            </LinearLayout>
+
+            <!-- The navigation drawer -->
+            <include layout="@layout/activity_left_drawer" />
 
 
-    </android.support.v4.widget.DrawerLayout>
-
-</LinearLayout>
+        </android.support.v4.widget.DrawerLayout>
+    </LinearLayout>
+    <!-- 快捷方式蒙层 -->
+    <RelativeLayout
+        android:id="@+id/home_shortcut_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#c0000000"
+        android:visibility="gone">
+        <!-- 退出蒙层返回按钮 -->
+        <ImageView
+            android:id="@+id/home_shortcut_cancel"
+            style="@style/main_frame_shortcut_image"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"
+            android:src="@mipmap/ic_launcher"/>
+        <!-- 发送快捷按钮 -->
+        <ImageView
+            android:id="@+id/home_shortcut_send"
+            style="@style/main_frame_shortcut_image"
+            android:layout_toLeftOf="@+id/home_shortcut_cancel"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="90dp"
+            android:layout_marginBottom="60dp"
+            android:src="@mipmap/ic_launcher"/>
+        <!-- 接收按钮 -->
+        <ImageView
+            android:id="@+id/home_shortcut_accept"
+            style="@style/main_frame_shortcut_image"
+            android:layout_above="@+id/home_shortcut_cancel"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="55dp"
+            android:layout_marginBottom="60dp"
+            android:src="@mipmap/ic_launcher"/>
+    </RelativeLayout>
+</FrameLayout>

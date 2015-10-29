@@ -1,6 +1,7 @@
 package com.example.filesharedapp.app;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -11,6 +12,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.fragment.AppFragment;
@@ -18,6 +20,10 @@ import com.example.filesharedapp.app.fragment.MusicFragment;
 import com.example.filesharedapp.app.fragment.OtherFragment;
 import com.example.filesharedapp.app.fragment.PhotoFragment;
 import com.example.filesharedapp.app.fragment.VideoFragment;
+import com.example.filesharedapp.app.transfers.SendShowActivity;
+import com.example.filesharedapp.app.transfers.entity.QrcodeInfo;
+import com.example.filesharedapp.utils.json.JsonUtil;
+import com.example.scanlibrary.ScanCameraActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +60,13 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
     private View line_tab3;
     private View line_tab4;
 
+    //定义悬浮的快捷操作按钮
+    private ImageView home_shortcut_show;
+    private ImageView home_shortcut_cancel;
+    private ImageView home_shortcut_send;
+    private ImageView home_shortcut_accept;
+    //定义遮挡的蒙层
+    private RelativeLayout home_shortcut_frame;
 
 
     @Override
@@ -64,7 +77,6 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
         initView();
         //初始化事件
         initEvent();
-
         //设置初始的页面为图片页
         selectPage(1);
     }
@@ -101,6 +113,13 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
         fragments.add(videoFragment);
         fragments.add(otherFragment);
 
+        //添加快捷按钮和遮挡蒙层
+        home_shortcut_show = (ImageView)findViewById(R.id.home_shortcut_show);
+        home_shortcut_cancel = (ImageView)findViewById(R.id.home_shortcut_cancel);
+        home_shortcut_send = (ImageView)findViewById(R.id.home_shortcut_send);
+        home_shortcut_accept = (ImageView)findViewById(R.id.home_shortcut_accept);
+        home_shortcut_frame = (RelativeLayout)findViewById(R.id.home_shortcut_frame);
+
     }
 
     /**
@@ -109,6 +128,11 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
     private void initEvent() {
         //添加头部icon的点击事件
         header_icon.setOnClickListener(this);
+        //添加快捷按钮的点击事件
+        home_shortcut_show.setOnClickListener(this);
+        home_shortcut_cancel.setOnClickListener(this);
+        home_shortcut_send.setOnClickListener(this);
+        home_shortcut_accept.setOnClickListener(this);
         //添加绑定适配器
         mAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -155,6 +179,26 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
             case R.id.header_icon:
                 //触发抽屉事件
                 mDrawerLayout.openDrawer(Gravity.LEFT);
+                break;
+            case R.id.home_shortcut_show:
+                //展现蒙层
+                home_shortcut_frame.setVisibility(View.VISIBLE);
+                break;
+            case R.id.home_shortcut_cancel:
+                //关闭蒙层
+                home_shortcut_frame.setVisibility(View.GONE);
+                break;
+            //跳转到二维码展示界面，并传递对应的文件信息
+            case R.id.home_shortcut_send:
+                Intent intent = new Intent(HomeMainActivity.this, SendShowActivity.class);
+                //封装待发送的文件路径
+                //.....
+                startActivity(intent);
+                break;
+            //扫描二维码
+            case R.id.home_shortcut_accept:
+                startActivityForResult(new Intent(HomeMainActivity.this, ScanCameraActivity.class),
+                        100);
                 break;
             case R.id.tab0:
                 selectPage(0);
@@ -214,5 +258,21 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
         line_tab2.setVisibility(View.INVISIBLE);
         line_tab3.setVisibility(View.INVISIBLE);
         line_tab4.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        //表示进行二维码扫描
+        if (requestCode == 100){
+            //表示扫描成功
+            if (resultCode == ScanCameraActivity.SCAN_OK){
+                //获取扫描得到的二维码
+                String code = data.getExtras().getString(ScanCameraActivity.SCAN_CODE);
+                //将字符串信息转化为传输实体
+                QrcodeInfo qrcodeInfo = JsonUtil.jsonToObject(code, QrcodeInfo.class);
+                //传递信息到文件发送页面
+            }
+        }
     }
 }

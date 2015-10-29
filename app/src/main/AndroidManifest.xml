@@ -18,41 +18,42 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
+            android:name=".TestActivity"
+            android:label="@string/title_activity_test" >
+            <!--<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>-->
+        </activity>
+        <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >
-
-            <!--
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            -->
         </activity>
+        <!-- 欢迎页 -->
         <activity
             android:name=".WelcomeActivity"
             android:label="@string/title_activity_welcome" >
         </activity>
+        <!-- 主页 -->
         <activity
             android:name=".app.HomeMainActivity"
             android:label="@string/title_activity_home_main" >
         </activity>
+        <!-- 传输条码信息展示页 -->
         <activity
-            android:name=".TestActivity"
-            android:label="@string/title_activity_test" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".app.send.SendShowActivity"
+            android:name=".app.transfers.SendShowActivity"
             android:label="@string/title_activity_send_show" >
         </activity>
+        <!-- 文件传输进度展示页 -->
         <activity
-            android:name=".framework.ui.base.BaseActivity"
-            android:label="@string/title_activity_base" >
+            android:name=".app.transfers.TransferShowActivity"
+            android:label="@string/title_activity_transfer_show" >
         </activity>
     </application>
 

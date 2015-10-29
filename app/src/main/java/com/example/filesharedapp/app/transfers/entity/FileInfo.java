@@ -1,4 +1,4 @@
-package com.example.filesharedapp.app.send.entity;
+package com.example.filesharedapp.app.transfers.entity;
 
 import java.io.Serializable;
 

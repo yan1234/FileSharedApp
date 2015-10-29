@@ -1,4 +1,4 @@
-package com.example.filesharedapp.app.send;
+package com.example.filesharedapp.app.transfers;
 
 import android.os.Bundle;
 import android.widget.ImageView;

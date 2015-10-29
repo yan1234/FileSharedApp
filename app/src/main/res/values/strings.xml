@@ -22,5 +22,6 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_send_show">SendShowActivity</string>
     <string name="title_activity_base">BaseActivity</string>
+    <string name="title_activity_transfer_show">TransferShowActivity</string>
 
 </resources>
