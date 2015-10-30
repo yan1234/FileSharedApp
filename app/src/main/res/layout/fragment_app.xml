@@ -1,12 +1,22 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.filesharedapp.app.fragment.AppFragment">
+    android:orientation="vertical">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView android:layout_width="match_parent"
+    <!-- 切换系统/用户应用按钮-->
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:text="切换"/>
+
+    <GridView
+        android:id="@+id/app_gridview"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="app" />
+        android:numColumns="4" />
 
-</FrameLayout>
+
+
+</LinearLayout>
