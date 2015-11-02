@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.filesharedapp.app.transfers.SendShowActivity;
+import com.example.filesharedapp.framework.media.MediaManager;
 import com.example.filesharedapp.framework.wifi.WifiController;
 import com.example.filesharedapp.utils.systemutils.AppUtils;
 import com.example.scanlibrary.ScanCameraActivity;
@@ -100,7 +101,7 @@ public class TestActivity extends Activity implements View.OnClickListener{
 
     }
 
-    private void getImage(){
+/*    private void getImage(){
         Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), Integer.parseInt(list.get(position).getId()), Thumbnails.MICRO_KIND, null);
 
         Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI.buildUpon().
@@ -119,14 +120,15 @@ public class TestActivity extends Activity implements View.OnClickListener{
         }
         bitmap = file.getBitmapFromBytes(mContent, null);
         iv.setImageBitmap(bitmap);
-    }
+    }*/
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             //开启wifi热点
             case R.id.btn:
-                Cursor cursor = MediaStore.Images.Media.query(getContentResolver(),
+                MediaManager.getInstance(TestActivity.this).getImages();
+               /* Cursor cursor = MediaStore.Images.Media.query(getContentResolver(),
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                         STORE_IMAGES);
                 while (cursor.moveToNext()){
@@ -134,7 +136,7 @@ public class TestActivity extends Activity implements View.OnClickListener{
                     String displayname = cursor.getString(0);
                     String haha = "123";
                 }
-                cursor.close();
+                cursor.close();*/
                 /*try {
                     String str1 = getPackageManager().getApplicationInfo(mApps.get(0).activityInfo.packageName, 0).sourceDir;
                     File appFile = new File(Environment.getExternalStorageDirectory()+ File.separator + "music.apk");
