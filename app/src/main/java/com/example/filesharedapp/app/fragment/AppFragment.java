@@ -144,7 +144,4 @@ public class AppFragment extends Fragment implements AdapterView.OnItemLongClick
         return true;
     }
 
-    public GridView getAppGridView(){
-        return this.appGridView;
-    }
 }

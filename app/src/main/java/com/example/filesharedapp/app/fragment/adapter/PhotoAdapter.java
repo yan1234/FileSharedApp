@@ -2,17 +2,18 @@ package com.example.filesharedapp.app.fragment.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.filesharedapp.R;
+import com.example.filesharedapp.framework.media.MediaManager;
 import com.example.filesharedapp.framework.media.entity.PhotoInfo;
 import com.example.filesharedapp.framework.ui.gridview.PhotoGridView;
 
@@ -32,6 +33,8 @@ public class PhotoAdapter extends BaseAdapter{
     private List<PhotoInfo> photos;
     //按目录整理图片
     private List<ListItem> listItems = new ArrayList<ListItem>();
+    //定义选择的图片列表
+    private List<PhotoInfo> selectedPhotos = new ArrayList<PhotoInfo>();
 
     /**
      *
@@ -78,7 +81,7 @@ public class PhotoAdapter extends BaseAdapter{
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder = null;
         if (convertView == null){
             viewHolder = new ViewHolder();
@@ -96,7 +99,25 @@ public class PhotoAdapter extends BaseAdapter{
         //载入图片选项的adapter
         ItemAdapter adapter = new ItemAdapter(listItems.get(position).list);
         viewHolder.gridView.setAdapter(adapter);
-
+        //给gridView添加item长按事件
+        viewHolder.gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int index, long id) {
+                //判断该项是否已经包含在选中的列表中
+                if (selectedPhotos.contains(listItems.get(position).list.get(index))){
+                    //移除该项
+                    selectedPhotos.remove(listItems.get(position).list.get(index));
+                    //设置背景为还原
+                    view.setBackgroundColor(mContext.getResources().getColor(R.color.long_click_cancel));
+                }else{
+                    //添加该项
+                    selectedPhotos.add(listItems.get(position).list.get(index));
+                    //设置背景
+                    view.setBackgroundColor(mContext.getResources().getColor(R.color.long_click_selected));
+                }
+                return true;
+            }
+        });
         return convertView;
     }
 
@@ -149,7 +170,7 @@ public class PhotoAdapter extends BaseAdapter{
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             VHolder vHolder = null;
             if (convertView == null){
                 vHolder = new VHolder();
@@ -166,12 +187,13 @@ public class PhotoAdapter extends BaseAdapter{
             AbsListView.LayoutParams params = new AbsListView.LayoutParams(layout_width, layout_width);
             vHolder.layout.setLayoutParams(params);
             //根据id查询到对应的图片
-            Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
-                    mContext.getContentResolver(),
-                    items.get(position).getId(),
-                    MediaStore.Images.Thumbnails.MICRO_KIND,
-                    null);
+            Bitmap bitmap = MediaManager.getInstance(mContext).getImages(items.get(position).getId());
             vHolder.image.setImageBitmap(bitmap);
+            //判断当前item是否被选中
+            if (selectedPhotos.contains(items.get(position))){
+                //设置当前item背景
+                vHolder.layout.setBackgroundColor(mContext.getResources().getColor(R.color.long_click_selected));
+            }
             return convertView;
         }
 
@@ -191,5 +213,9 @@ public class PhotoAdapter extends BaseAdapter{
         public String bucketName;
         //该目录下的图片集合
         public List<PhotoInfo> list = new ArrayList<PhotoInfo>();
+    }
+
+    public List<PhotoInfo> getSelectedPhotos() {
+        return selectedPhotos;
     }
 }

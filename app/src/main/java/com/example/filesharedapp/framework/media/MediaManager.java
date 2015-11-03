@@ -3,6 +3,7 @@ package com.example.filesharedapp.framework.media;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.provider.MediaStore;
 
 import com.example.filesharedapp.framework.media.entity.MusicInfo;
@@ -81,6 +82,20 @@ public class MediaManager {
     }
 
     /**
+     * 根据图片的资源id获取图片
+     * @param id
+     * @return，返回bitmap
+     */
+    public Bitmap getImages(int id){
+        Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
+                contentResolver,
+                id,
+                MediaStore.Images.Thumbnails.MICRO_KIND,
+                null);      //BitmapFactory.Options
+        return bitmap;
+    }
+
+    /**
      * 获取音乐列表
      * @return，音乐信息列表
      */
@@ -100,8 +115,10 @@ public class MediaManager {
                 cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME)),
                 cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE)),
                 cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA)),
-                cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.SIZE)));
+                cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.SIZE)),
+                cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)));
             musics.add(music);
+
         }
         if (cursor != null){
             cursor.close();
