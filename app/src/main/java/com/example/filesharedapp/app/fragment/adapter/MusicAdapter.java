@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.framework.media.entity.MusicInfo;
+import com.example.filesharedapp.utils.common.DateUtils;
 
 import org.w3c.dom.Text;
 
@@ -71,9 +72,13 @@ public class MusicAdapter extends BaseAdapter{
         }
         //将数据绑定到控件中
         viewHolder.name.setText(musics.get(position).getName());
+        //计算时长
+        long time[] = DateUtils.millisToTime(musics.get(position).getDuration());
+        //这里音乐不可能到天数，毫秒数也可以去掉，直接处理了
+        String duration = "" + time[3]+":"+time[4]+":"+time[5];
         //将大小换算成MB
         float size = musics.get(position).getSize() / (1024*1024);
-        viewHolder.size.setText("" + size + "MB");
+        viewHolder.size.setText(duration+"  " + size + "MB");
         //判断该项是否已选择
         if (selectedMusic.contains(musics.get(position))){
             //置为选中项
