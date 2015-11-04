@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="80dp"
+    android:padding="8dp"
+    android:orientation="horizontal">
+
+    <!-- 视频缩略图 -->
+    <ImageView
+        android:id="@+id/item_video_image"
+        android:layout_width="0dp"
+        android:layout_weight="2"
+        android:layout_height="match_parent" />
+    <!-- 视频基本信息 -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="4"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <!-- 名称 -->
+        <TextView
+            android:id="@+id/item_video_name"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:textSize="15sp" />
+
+        <!-- 大小 -->
+        <TextView
+            android:id="@+id/item_video_size"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:textSize="12sp"
+            android:text="2.3MB"/>
+    </LinearLayout>
+    <!-- 选择框 -->
+    <CheckBox
+        android:id="@+id/item_video_select"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent" />
+</LinearLayout>

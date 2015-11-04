@@ -24,15 +24,19 @@ public class VideoInfo implements Serializable{
     //大小
     private long size;
 
+    //时长
+    private long duration;
+
     public VideoInfo() {
     }
 
-    public VideoInfo(int id, String name, String mimeType, String path, long size) {
+    public VideoInfo(int id, String name, String mimeType, String path, long size,long duration) {
         this.id = id;
         this.name = name;
         this.mimeType = mimeType;
         this.path = path;
         this.size = size;
+        this.duration = duration;
     }
 
     public int getId() {
@@ -73,5 +77,13 @@ public class VideoInfo implements Serializable{
 
     public void setSize(long size) {
         this.size = size;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 }

@@ -9,6 +9,7 @@ import android.provider.MediaStore;
 import com.example.filesharedapp.framework.media.entity.MusicInfo;
 import com.example.filesharedapp.framework.media.entity.PhotoInfo;
 import com.example.filesharedapp.framework.media.entity.VideoInfo;
+import com.google.zxing.common.BitMatrix;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -134,25 +135,40 @@ public class MediaManager {
         List<VideoInfo> videos = new ArrayList<VideoInfo>();
         //查询出手机上的视频
         Cursor cursor = contentResolver.query(
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,   //查询音乐的uri
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,   //查询视频的uri
                 null,                 //查询到的列，类似于数据中字段，null表示所有
                 null,                 //过滤条件，类似于数据库语句中的where,null表示不过滤
                 null,                 //多个过滤条件
-                null);                //排序，类似于数据库语句中的order by, null比奥斯不操作
+                null);                //排序，类似于数据库语句中的order by, null表示不操作
         while (cursor.moveToNext()){
-            //取出音乐信息实体
+            //取出视频信息实体
             VideoInfo video = new VideoInfo(
                     cursor.getInt(cursor.getColumnIndex(MediaStore.Video.Media._ID)),
                     cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME)),
                     cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.MIME_TYPE)),
                     cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA)),
-                    cursor.getInt(cursor.getColumnIndex(MediaStore.Video.Media.SIZE)));
+                    cursor.getInt(cursor.getColumnIndex(MediaStore.Video.Media.SIZE)),
+                    cursor.getInt(cursor.getColumnIndex(MediaStore.Video.Media.DURATION)));
             videos.add(video);
         }
         if (cursor != null){
             cursor.close();
         }
         return videos;
+    }
+
+    /**
+     * 根据资源id获取视频缩略图
+     * @param id
+     * @return
+     */
+    public Bitmap getVideoImage(int id){
+        Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
+                contentResolver,
+                id,
+                MediaStore.Video.Thumbnails.MICRO_KIND,
+                null);      //BitmapFactory.Options
+        return bitmap;
     }
 
     public List<String> getImageBucketNames() {
