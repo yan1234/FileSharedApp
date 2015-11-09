@@ -74,7 +74,7 @@ public class VideoAdapter extends BaseAdapter{
         viewHolder.name.setText(videos.get(position).getName());
         //计算时长
         long time[] = DateUtils.millisToTime(videos.get(position).getDuration());
-        //这里音乐不可能到天数，毫秒数也可以去掉，直接处理了
+        //这里视频不可能到天数，毫秒数也可以去掉，直接处理了
         String duration = "" + time[3]+":"+time[4]+":"+time[5];
         //将大小换算成MB
         float size = videos.get(position).getSize() / (1024*1024);

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:descendantFocusability="blocksDescendants">
+
+    <!--文件的类型，是文件夹还是文件 -->
+    <ImageView
+        android:id="@+id/item_other_image"
+        android:layout_width="0dp"
+        android:layout_weight="2"
+        android:layout_height="match_parent" />
+
+    <!-- 文件/目录名 -->
+    <TextView
+        android:id="@+id/item_other_name"
+        android:layout_width="0dp"
+        android:layout_weight="4"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:textSize="15sp"
+        android:singleLine="true"
+        android:ellipsize="middle"/>
+    
+    <!-- 选择框 -->
+    <CheckBox
+        android:id="@+id/item_other_select"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

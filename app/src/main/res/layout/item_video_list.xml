@@ -24,6 +24,8 @@
             android:layout_height="0dp"
             android:layout_marginLeft="10dp"
             android:layout_weight="1"
+            android:singleLine="true"
+            android:ellipsize="middle"
             android:textSize="15sp" />
 
         <!-- 大小 -->
