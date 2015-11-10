@@ -11,6 +11,8 @@ import android.hardware.Camera.PreviewCallback;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -59,6 +61,8 @@ public class ScanCameraActivity extends Activity {
     private ImageView img_light;
     //定义变量保存闪光灯开启/关闭的状态
     private boolean isFlashlightOn = false;
+    //定义解析线程
+    private DecodeThread decodeThread;
 
     private PreviewCallback previewCallback = new PreviewCallback() {
         @Override
@@ -66,20 +70,81 @@ public class ScanCameraActivity extends Activity {
 
             Camera.Parameters parameters = camera.getParameters();
             Camera.Size size = parameters.getPreviewSize();
-            Log.i(TAG, "调用相机预览》》》");
-            //解析扫描的信息
-            String result = ScanUtils.decode(data, size.width, size.height);
-            //判断是否解析成功
-            if (null != result){
+            //设置预览数据
+            decodeThread.setDecodeData(data, size.width, size.height);
+        }
+    };
+
+    /**
+     * 运用线程去解析相机预览的数据
+     */
+    class DecodeThread extends Thread{
+
+        //定义待解析的数据
+        private byte[] data;
+        private int width;
+        private int height;
+
+        /**
+         * 设置要解析的数据
+         */
+        public synchronized void setDecodeData(byte[] buff, int width, int height){
+
+            // 这里需要将获取的data翻转一下，因为相机默认拿的的横屏的数据
+            data = new byte[buff.length];
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++)
+                    data[x * height + height - y - 1] = buff[x + y * width];
+            }
+            //置换宽，高
+            this.width = height;
+            this.height = width;
+        }
+        @Override
+        public void run(){
+            while (true){
+                //判断数据是否为空
+                if (data != null && width >0 && height >0){
+                    //解析扫描的信息
+                    String result = ScanUtils.decode(data, width, height);
+                    //判断是否解析成功
+                    if (null != result){
+                        //封装解析参数
+                        Message msg = new Message();
+                        msg.what = SCAN_OK;
+                        msg.obj = result;
+                        //发送回调消息
+                        handler.sendMessage(msg);
+                        //结束循环
+                        break;
+                    }
+                    try {
+                        //休眠10ms
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 扫码成功handler回调
+     */
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == SCAN_OK){
                 //封装扫码结果
                 Intent intent = new Intent();
                 Bundle bundle = new Bundle();
-                bundle.putString(SCAN_CODE, result);
+                bundle.putString(SCAN_CODE, (String)msg.obj);
                 intent.putExtras(bundle);
                 setResult(SCAN_OK, intent);
                 ScanCameraActivity.this.finish();
             }
-
         }
     };
 
@@ -87,6 +152,9 @@ public class ScanCameraActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_camera);
+        //开启解析线程
+        decodeThread = new DecodeThread();
+        decodeThread.start();
     }
 
     /**
@@ -120,6 +188,7 @@ public class ScanCameraActivity extends Activity {
                 isFlashlightOn = !isFlashlightOn;
             }
         });
+
     }
 
     @Override

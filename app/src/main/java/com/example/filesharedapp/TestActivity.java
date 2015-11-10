@@ -72,8 +72,8 @@ public class TestActivity extends Activity implements View.OnClickListener{
         btn.setOnClickListener(this);
         scan.setOnClickListener(this);
 
-        wifiController = new WifiController(TestActivity.this);
-        initApp();
+        //wifiController = new WifiController(TestActivity.this);
+        //initApp();
     }
 
     private void initApp()
@@ -127,7 +127,8 @@ public class TestActivity extends Activity implements View.OnClickListener{
         switch (v.getId()){
             //开启wifi热点
             case R.id.btn:
-                MediaManager.getInstance(TestActivity.this).getImages();
+                startActivityForResult(new Intent(TestActivity.this, ScanCameraActivity.class), 100);
+                //MediaManager.getInstance(TestActivity.this).getImages();
                /* Cursor cursor = MediaStore.Images.Media.query(getContentResolver(),
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                         STORE_IMAGES);

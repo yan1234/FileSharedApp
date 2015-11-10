@@ -13,6 +13,7 @@ import android.widget.ListView;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.fragment.adapter.OtherAdapter;
+import com.example.filesharedapp.utils.common.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -65,9 +66,9 @@ public class OtherFragment extends Fragment {
      */
     private void initEvent(){
         //获取根目录的文件列表(这里暂时不获取SD卡）
-        files = Environment.getExternalStorageDirectory().listFiles();
+        files = FileUtils.getFiles(Environment.getExternalStorageDirectory());
         //初始化适配器
-        adapter  = new OtherAdapter(this.getActivity(), files);
+        adapter = new OtherAdapter(this.getActivity(), files);
         //绑定适配器
         otherListView.setAdapter(adapter);
         //设置item的点击事件，如果是目录则进入下一层目录
@@ -79,7 +80,7 @@ public class OtherFragment extends Fragment {
                 if (file.isDirectory() && file.listFiles().length != 0){
                     //进入下一层目录
                     //更新适配器的数据
-                    adapter.setFiles(file.listFiles());
+                    adapter.setFiles(FileUtils.getFiles(file));
                     adapter.notifyDataSetChanged();
                 }
             }
