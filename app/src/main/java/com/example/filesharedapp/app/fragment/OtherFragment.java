@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,10 @@ import java.util.List;
  */
 public class OtherFragment extends Fragment {
 
+
+    //定义文件操作的根目录
+    public static File root = Environment.getExternalStorageDirectory();
+
     //定义界面view
     private View view;
     //定义文件列表布局
@@ -46,7 +51,7 @@ public class OtherFragment extends Fragment {
                              Bundle savedInstanceState) {
         //载入view
         view = inflater.from(this.getActivity())
-                .inflate(R.layout.fragment_listview, null);
+                .inflate(R.layout.fragment_other, null);
         //初始化界面
         initView();
         //初始化事件
@@ -66,9 +71,11 @@ public class OtherFragment extends Fragment {
      */
     private void initEvent(){
         //获取根目录的文件列表(这里暂时不获取SD卡）
-        files = FileUtils.getFiles(Environment.getExternalStorageDirectory());
+        files = FileUtils.getFiles(root);
         //初始化适配器
         adapter = new OtherAdapter(this.getActivity(), files);
+        //设置父目录
+        adapter.setParentFile(root);
         //绑定适配器
         otherListView.setAdapter(adapter);
         //设置item的点击事件，如果是目录则进入下一层目录
@@ -77,15 +84,43 @@ public class OtherFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //判断是否是目录
                 File file = adapter.getFiles()[position];
-                if (file.isDirectory() && file.listFiles().length != 0){
+                if (file.isDirectory()){
                     //进入下一层目录
                     //更新适配器的数据
                     adapter.setFiles(FileUtils.getFiles(file));
+                    //设置父目录
+                    adapter.setParentFile(file);
                     adapter.notifyDataSetChanged();
                 }
             }
         });
+
+        //添加返回监听事件
+        view.setFocusableInTouchMode(true);
+        view.requestFocus();
+        view.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN){
+                    //判断是否是返回按钮
+                    if (keyCode == KeyEvent.KEYCODE_BACK){
+
+                        //首先判断当前目录的父目录是否已经达到根部
+                        if (!root.equals(adapter.getParentFile())){
+                            //获取当前父目录的父目录的文件列表
+                            adapter.setFiles(FileUtils.getFiles(adapter.getParentFile().getParentFile()));
+                            adapter.setParentFile(adapter.getParentFile().getParentFile());
+                            adapter.notifyDataSetChanged();
+                        }
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
     }
+
+
 
 
 }

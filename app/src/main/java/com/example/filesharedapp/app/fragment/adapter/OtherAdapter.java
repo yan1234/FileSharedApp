@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.filesharedapp.R;
+import com.example.filesharedapp.framework.ui.icon.ResourceManager;
 
 
 import java.io.File;
@@ -29,6 +30,8 @@ public class OtherAdapter extends BaseAdapter{
     private File[] files;
     //定义已选择的文件列表
     private List<File> selectedFile = new ArrayList<File>();
+    //定义变量保存父目录
+    private File parentFile;
 
     public OtherAdapter(Context context, File[] files){
         this.mContext = context;
@@ -70,10 +73,11 @@ public class OtherAdapter extends BaseAdapter{
          */
         //判断该项是文件还是目录，显示对于的图片
         if (files[position].isDirectory()){
-            viewHolder.image.setImageResource(R.mipmap.ic_launcher);
+            viewHolder.image.setImageResource(ResourceManager.getResourceId(mContext, ResourceManager.ICON_DIR));
         }//显示文件图标
         else{
-            viewHolder.image.setImageResource(R.mipmap.ic_launcher);
+            //根据文件后缀显示不同文件图标
+            viewHolder.image.setImageResource(ResourceManager.getIconType(mContext, files[position].getName()));
         }
         //显示文件名
         viewHolder.name.setText(files[position].getName());
@@ -113,5 +117,13 @@ public class OtherAdapter extends BaseAdapter{
 
     public void setFiles(File[] files) {
         this.files = files;
+    }
+
+    public File getParentFile() {
+        return parentFile;
+    }
+
+    public void setParentFile(File parentFile) {
+        this.parentFile = parentFile;
     }
 }
