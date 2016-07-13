@@ -13,9 +13,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.filesharedapp.R;
+import com.example.filesharedapp.framework.cache.ImageLoaderManager;
 import com.example.filesharedapp.framework.media.MediaManager;
 import com.example.filesharedapp.framework.media.entity.PhotoInfo;
 import com.example.filesharedapp.framework.ui.gridview.PhotoGridView;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 
 import java.util.ArrayList;
@@ -187,8 +190,25 @@ public class PhotoAdapter extends BaseAdapter{
             AbsListView.LayoutParams params = new AbsListView.LayoutParams(layout_width, layout_width);
             vHolder.layout.setLayoutParams(params);
             //根据id查询到对应的图片
-            Bitmap bitmap = MediaManager.getInstance(mContext).getImages(items.get(position).getId());
-            vHolder.image.setImageBitmap(bitmap);
+            //Bitmap bitmap = MediaManager.getInstance(mContext).getImages(items.get(position).getId());
+            //vHolder.image.setImageBitmap(bitmap);
+            /*ImageLoader.getInstance().displayImage(
+                    "file://" + items.get(position).getPath(),
+                    vHolder.image,
+                    ImageLoaderManager.getOption(mContext));*/
+            final ImageView img = vHolder.image;
+            //通过ImageLoader缓存图片进行加载
+            ImageLoader.getInstance().loadImage(
+                    "file://" + items.get(position).getPath(),
+                    ImageLoaderManager.getOption(mContext),
+                    new SimpleImageLoadingListener(){
+                        @Override
+                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                            super.onLoadingComplete(imageUri, view, loadedImage);
+                            //加载图片
+                            img.setImageBitmap(loadedImage);
+                        }
+                    });
             //判断当前item是否被选中
             if (selectedPhotos.contains(items.get(position))){
                 //设置当前item背景

@@ -1,6 +1,7 @@
 package com.example.filesharedapp.app.fragment.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,10 +13,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.filesharedapp.R;
+import com.example.filesharedapp.framework.cache.ImageLoaderManager;
 import com.example.filesharedapp.framework.media.MediaManager;
 import com.example.filesharedapp.framework.media.entity.VideoInfo;
+import com.example.filesharedapp.framework.storage.StorageManager;
 import com.example.filesharedapp.utils.common.DateUtils;
+import com.example.filesharedapp.utils.common.FileUtils;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,8 +76,30 @@ public class VideoAdapter extends BaseAdapter{
             viewHolder = (ViewHolder)convertView.getTag();
         }
         //将数据绑定到控件
-        viewHolder.image.setImageBitmap(MediaManager.getInstance(mContext)
-                .getVideoImage(videos.get(position).getId()));
+        /*viewHolder.image.setImageBitmap(MediaManager.getInstance(mContext)
+                .getVideoThumbnail(videos.get(position).getPath()));*/
+        //这里为了能使用ImageLoader进行图片加载，先判断是否对图片进行缓存了
+        //缓存的图片就以视频实体id命名
+        File cacheImg = new File(StorageManager.getInstance().getCacheOfImage(), videos.get(position).getId()+"");
+        if (!cacheImg.exists()){
+            //保存bitmap
+            Bitmap bitmap = MediaManager.getInstance(mContext)
+                    .getVideoThumbnail(videos.get(position).getPath());
+            //缓存图片
+            FileUtils.saveBitmap(bitmap, cacheImg.getPath());
+        }
+        //通过ImageLoader加载
+        final ImageView img = viewHolder.image;
+        ImageLoader.getInstance().loadImage("file://" + cacheImg.getPath(),
+                ImageLoaderManager.getOption(mContext),
+                new SimpleImageLoadingListener(){
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        super.onLoadingComplete(imageUri, view, loadedImage);
+                        //设置图片
+                        img.setImageBitmap(loadedImage);
+                    }
+                });
         viewHolder.name.setText(videos.get(position).getName());
         //计算时长
         long time[] = DateUtils.millisToTime(videos.get(position).getDuration());

@@ -10,10 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.fragment.adapter.OtherAdapter;
+import com.example.filesharedapp.framework.storage.StorageManager;
 import com.example.filesharedapp.utils.common.FileUtils;
 
 import java.io.BufferedInputStream;
@@ -35,10 +39,14 @@ public class OtherFragment extends Fragment {
 
 
     //定义文件操作的根目录
-    public static File root = Environment.getExternalStorageDirectory();
+    public File root = StorageManager.getInstance().getSystemRoot();
 
     //定义界面view
     private View view;
+    //定义返回图标
+    private ImageView backImageView;
+    //定义路径显示文本控件
+    private TextView pathShowText;
     //定义文件列表布局
     private ListView otherListView;
     //定义适配器
@@ -63,6 +71,8 @@ public class OtherFragment extends Fragment {
      * 初始化界面
      */
     private void initView(){
+        backImageView = (ImageView)view.findViewById(R.id.other_back);
+        pathShowText = (TextView)view.findViewById(R.id.other_showpath);
         otherListView = (ListView)view.findViewById(R.id.fragment_list);
     }
 
@@ -84,17 +94,21 @@ public class OtherFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //判断是否是目录
                 File file = adapter.getFiles()[position];
-                if (file.isDirectory()){
+                if (file.isDirectory()) {
                     //进入下一层目录
                     //更新适配器的数据
-                    adapter.setFiles(FileUtils.getFiles(file));
-                    //设置父目录
-                    adapter.setParentFile(file);
-                    adapter.notifyDataSetChanged();
+                    updateView(file);
                 }
             }
         });
-
+        //点击返回图标监听事件
+        backImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //调用返回事件
+                backEvent();
+            }
+        });
         //添加返回监听事件
         view.setFocusableInTouchMode(true);
         view.requestFocus();
@@ -104,14 +118,8 @@ public class OtherFragment extends Fragment {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN){
                     //判断是否是返回按钮
                     if (keyCode == KeyEvent.KEYCODE_BACK){
-
-                        //首先判断当前目录的父目录是否已经达到根部
-                        if (!root.equals(adapter.getParentFile())){
-                            //获取当前父目录的父目录的文件列表
-                            adapter.setFiles(FileUtils.getFiles(adapter.getParentFile().getParentFile()));
-                            adapter.setParentFile(adapter.getParentFile().getParentFile());
-                            adapter.notifyDataSetChanged();
-                        }
+                        //调用返回事件处理
+                        backEvent();
                         return true;
                     }
                 }
@@ -120,7 +128,34 @@ public class OtherFragment extends Fragment {
         });
     }
 
+    /**
+     * 处理返回事件（返回按钮和返回图标）
+     */
+    private void backEvent(){
+        //首先判断当前目录的父目录是否已经达到根部
+        if (!root.equals(adapter.getParentFile())){
+            //获取当前父目录的父目录的文件列表
+            updateView(adapter.getParentFile().getParentFile());
+        }else{
+            Toast.makeText(this.getActivity(), "已到达根目录", Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    /**
+     * 更新界面
+     * @param parent，当前要显示的文件列表的父目录
+     */
+    private void updateView(File parent){
+        //首先更新文件路径显示头
+        //获取当前目录相对于根目录的路径,然后将路径符换成">"
+        String showPath = parent.getPath().replace(root.getPath(), "");
+        pathShowText.setText(showPath);
+        //然后更新ListView文件列表
+        adapter.setFiles(FileUtils.getFiles(parent));
+        //设置当前列表的父目录
+        adapter.setParentFile(parent);
+        adapter.notifyDataSetChanged();
+    }
 
 
 }

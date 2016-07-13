@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.provider.MediaStore;
 
 import com.example.filesharedapp.framework.media.entity.MusicInfo;
@@ -168,6 +169,32 @@ public class MediaManager {
                 id,
                 MediaStore.Video.Thumbnails.MICRO_KIND,
                 null);      //BitmapFactory.Options
+        return bitmap;
+    }
+
+    /**
+     * 根据视频路径获取视频缩略图
+     * @param filePath
+     * @return
+     */
+    public Bitmap getVideoThumbnail(String filePath) {
+        Bitmap bitmap = null;
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(filePath);
+            bitmap = retriever.getFrameAtTime();
+        } catch(IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                retriever.release();
+            }
+            catch (RuntimeException e) {
+                e.printStackTrace();
+            }
+        }
         return bitmap;
     }
 

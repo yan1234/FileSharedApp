@@ -2,6 +2,7 @@ package com.example.filesharedapp.framework.ui.base;
 
 import android.app.Application;
 
+import com.example.filesharedapp.framework.cache.ImageLoaderManager;
 import com.facebook.stetho.Stetho;
 
 /**
@@ -16,5 +17,7 @@ public class BaseApplication extends Application{
         super.onCreate();
         //初始化Stetho
         Stetho.initializeWithDefaults(this);
+        //初始化ImageLoader
+        ImageLoaderManager.init(this);
     }
 }

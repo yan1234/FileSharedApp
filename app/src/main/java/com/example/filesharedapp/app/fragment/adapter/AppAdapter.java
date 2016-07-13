@@ -112,6 +112,7 @@ public class AppAdapter extends BaseAdapter{
             //标签
             viewHolder.label = (TextView)convertView.findViewById(R.id.item_app_label);
             convertView.setTag(viewHolder);
+            viewMap.put(position, convertView);
         }else{
             convertView = viewMap.get(position);
             viewHolder = (ViewHolder)convertView.getTag();
