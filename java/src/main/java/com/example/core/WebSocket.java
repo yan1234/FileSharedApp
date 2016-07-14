@@ -34,7 +34,7 @@ public class WebSocket {
                 //连接上服务端
                 webSocket.socketClient = webSocket.serverSocket.accept();
 
-                StringBuffer request = new StringBuffer(2018);
+                StringBuffer request = new StringBuffer(2048);
 
                 int i;
                 byte[] buffer = new byte[2048];

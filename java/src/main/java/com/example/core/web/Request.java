@@ -2,7 +2,6 @@ package com.example.core.web;
 
 import com.example.core.web.http.MessageBody;
 import com.example.core.web.http.MessageHeader;
-import com.example.core.web.http.StartLine;
 import com.example.core.web.http.startline.RequestLine;
 
 import java.io.BufferedReader;
