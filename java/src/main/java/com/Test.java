@@ -1,5 +1,8 @@
 package com;
 
+import com.yanling.http.WebServerCallback;
+import com.yanling.http.WebServerSocket;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -20,7 +23,95 @@ import java.net.Socket;
 public class Test {
 
 
+
+
     public static void main(String[] args){
+
+        try {
+            //初始化服务端
+            WebServerSocket webServerSocket = new WebServerSocket(8888);
+
+            while (true){
+                //获取客户端连接
+                Socket socket = webServerSocket.getServer().accept();
+                final PrintStream ps = new PrintStream(socket.getOutputStream());
+                webServerSocket.parseStream(socket.getInputStream(), new WebServerCallback() {
+                    @Override
+                    public void handleDownload() {
+                        //下载操作
+                        File file = new File("E:\\aapt.exe");
+                        try {
+                            FileInputStream fis = new FileInputStream(file);
+                            byte[] buffer = new byte[1024];
+                            int length = 0;
+                            while ((length = fis.read(buffer)) != -1){
+                                ps.write(buffer, 0, length);
+                            }
+                            ps.flush();
+                            ps.close();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e){
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void showUploadPage() {
+                        File file = new File("E:\\Upload.html");
+                        try {
+                            FileInputStream fis = new FileInputStream(file);
+                            byte[] buffer = new byte[1024];
+                            int length = 0;
+                            while ((length = fis.read(buffer)) != -1){
+                                ps.write(buffer, 0, length);
+                            }
+                            ps.flush();
+                            ps.close();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e){
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void handleUploadAction() {
+
+                    }
+
+                    @Override
+                    public void onError(String errMsg) {
+                        System.out.println(errMsg);
+                    }
+                });
+
+            }
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public static void Main(String[] args){
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(8888);
