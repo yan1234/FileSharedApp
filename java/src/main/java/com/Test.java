@@ -76,13 +76,18 @@ public class Test {
                     }
 
                     @Override
-                    public void handleUploadAction() {
-
+                    public void showUploadComplete() {
+                        ps.append("上传完成!");
+                        ps.flush();
+                        ps.close();
                     }
 
                     @Override
                     public void onError(String errMsg) {
                         System.out.println(errMsg);
+                        ps.append("操作出错："+errMsg);
+                        ps.flush();
+                        ps.close();
                     }
                 });
 

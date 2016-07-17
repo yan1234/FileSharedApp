@@ -31,6 +31,8 @@ public class WebServerSocket extends BaseServerSocket{
     private long upload_length;
     //保存上传的文件名
     private String upload_filename;
+    //保存http协议中的boundary
+    private String boundary;
 
 
     public WebServerSocket(int port) throws IOException{
@@ -49,7 +51,8 @@ public class WebServerSocket extends BaseServerSocket{
         String line = null;
         //定义变量保存当前解析的行数
         int length = 0;
-
+        //定义变量记录请求body实体中其他数据的长度
+        int body_count = 0;
         //解析流中的内容
         try{
             /*byte[] b = new byte[1];
@@ -66,44 +69,84 @@ public class WebServerSocket extends BaseServerSocket{
                     }
                 }
                 //第一行解析完后基本可以确定后面的是文件上传操作了
-                //解析上传流的长度
-                //---Content-Length: 6521899---
+                //解析上传流的长度，这里的长度指的是整个body的长度，包括实际内容和http的一些标志信息
+                //Content-Length: 6521899
                 if (line.toLowerCase().contains("Content-Length".toLowerCase())){
                     String[] tmp = line.split(":");
                     upload_length = Long.parseLong(tmp[1].replace(" ", ""));
+                    continue;
+                }
+                //解析出boundary
+                //Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryOml2B50fQJCENuAl
+                if (line.toLowerCase().contains("Content-Type".toLowerCase())
+                        && line.toLowerCase().contains("boundary".toLowerCase())){
+                    String[] tmp = line.split(";")[1].split("=");
+                    boundary = tmp[1];
+                    continue;
                 }
 
-                //解析上传流文件的文件名
-                //---Content-Disposition: form-data; name="upload"; filename="apktool.jar"---
-                if (line.toLowerCase().contains("Content-Disposition".toLowerCase())
-                        && line.toLowerCase().contains("filename".toLowerCase())){
-                    String[] tmp = line.split(";")[2].split("=");
-                    //去掉双引号
-                    upload_filename = tmp[1].replace("\"", "");
-                    //解析到这里，那么下面再读两行就是文件流数据了
+                //根据boundary确定实体的起始行
+                if (boundary != null && !"".equals(boundary) && line.contains(boundary)){
+                    //注意换行符"\r\n"
+                    body_count += line.length() + "\r\n".length();
+                    //确定好起始行后下面就是文件相关信息数据了，包括文件名，数据类型等
                     break;
                 }
             }
-            //去掉--Content-Type: application/octet-stream--
-            String test1 = br.readLine();
-            //去掉--\r\n
-            String test2 = br.readLine();
+            //解析上传流文件的文件名
+            //Content-Disposition: form-data; name="upload"; filename="apktool.jar"
+            line = br.readLine();
+            String[] tmp = line.split(";")[2].split("=");
+            //去掉双引号
+            upload_filename = tmp[1].replace("\"", "");
+            //记录长度
+            body_count += line.length() + "\r\n".length();
+            //记录长度Content-Type: application/octet-stream
+            body_count += br.readLine().length() + "\r\n".length();
+            //记录长度\r\n
+            body_count += br.readLine().length() + "\r\n".length();
+            //剔除结束符
+            body_count += "\r\n".length() + "--".length() * 2 + boundary.length() + "\r\n".length();
+            //获取上传文件的实际长度
+            upload_length -= body_count;
             //下面开始就是完整的文件数据了
             File file = new File("E:\\" + upload_filename);
             FileOutputStream fos = new FileOutputStream(file);
             char[] buff = new char[1024];
             int count = 0;
+            //定义变量保存已读的文件数据长度
+            //total_count最后的长度应该是和upload_length长度一致
+            long total_count = 0;
             while ((count = br.read(buff)) != -1){
                 Charset cs = Charset.forName("ISO-8859-1");
                 CharBuffer cb = CharBuffer.allocate(buff.length);
                 cb.put(buff);
                 cb.flip();
                 ByteBuffer bb = cs.encode(cb);
-                fos.write(bb.array(), 0, count);
+                //避免写入数据过多
+                if (upload_length - total_count >= 1024){
+                    //如果当前读取的数量与总数的差距在缓存区数据长度以上，正常读取就可以了
+                    fos.write(bb.array(), 0, count);
+                    total_count += count;
+                }else{
+                    //如果差距在缓冲区长度以内
+                    if (count > upload_length - total_count){
+                        //如果剩下的数据包含在当前数据中，直接把剩下读完就ok了
+                        fos.write(bb.array(), 0, (int)(upload_length - total_count));
+                        //结束
+                        break;
+                    }else{
+                        //剩下数据一次还不能读完，那么就再读一次
+                        fos.write(bb.array(), 0, count);
+                        total_count += count;
+                    }
+                }
+
             }
             fos.flush();
             fos.close();
-
+            //调用下载完成回调
+            callback.showUploadComplete();
         }catch (IOException e){
             e.printStackTrace();
         }

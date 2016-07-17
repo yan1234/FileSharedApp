@@ -14,8 +14,8 @@ public interface WebServerCallback {
     //展示下载页面
     void showUploadPage();
 
-    //上传操作处理回调
-    void handleUploadAction();
+    //上传操作完成展示回调
+    void showUploadComplete();
 
     //错误处理
     void onError(String errMsg);
