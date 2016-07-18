@@ -24,6 +24,7 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -36,13 +37,18 @@ public class VideoAdapter extends BaseAdapter{
     private Context mContext;
     //数据列表
     private List<VideoInfo> videos;
+    //定义Map保存view集合
+    private HashMap<Integer, View> viewMap = null;
     //定义选择的列表
-    private List<VideoInfo> selectedVideo = new ArrayList<VideoInfo>();
+    private List<VideoInfo> selectedVideo = null;
 
 
     public VideoAdapter(Context context, List<VideoInfo> list){
         this.mContext = context;
         this.videos = list;
+        //初始化数据
+        viewMap = new HashMap<>();
+        selectedVideo = new ArrayList<>();
     }
     @Override
     public int getCount() {
@@ -62,7 +68,9 @@ public class VideoAdapter extends BaseAdapter{
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder = null;
-        if (convertView == null){
+        //if (convertView == null){
+        //不存在临时缓存map中或为空
+        if (!viewMap.containsKey(position) || viewMap.get(position) == null){
             viewHolder = new ViewHolder();
             //载入布局
             convertView = LayoutInflater.from(mContext)
@@ -72,7 +80,11 @@ public class VideoAdapter extends BaseAdapter{
             viewHolder.size = (TextView)convertView.findViewById(R.id.item_video_size);
             viewHolder.select = (CheckBox)convertView.findViewById(R.id.item_video_select);
             convertView.setTag(viewHolder);
+            //添加到缓存中
+            viewMap.put(position, convertView);
         }else{
+            //从缓存中取出
+            convertView = viewMap.get(position);
             viewHolder = (ViewHolder)convertView.getTag();
         }
         //将数据绑定到控件
@@ -109,10 +121,7 @@ public class VideoAdapter extends BaseAdapter{
         float size = videos.get(position).getSize() / (1024*1024);
         viewHolder.size.setText(duration+"  " + size + "MB");
         //判断该项是否已选择
-        if (selectedVideo.contains(videos.get(position))){
-            //置为选中项
-            viewHolder.select.setChecked(true);
-        }
+        viewHolder.select.setChecked(selectedVideo.contains(videos.get(position)));
         //为radiobutton添加点击事件
         viewHolder.select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

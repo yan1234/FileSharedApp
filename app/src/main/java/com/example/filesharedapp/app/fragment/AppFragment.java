@@ -83,6 +83,8 @@ public class AppFragment extends Fragment implements AdapterView.OnItemLongClick
         List<ResolveInfo> cApps = AppUtils.getApps(this.getActivity(), AppUtils.CUSTOMER);
         List<ResolveInfo> sApps = AppUtils.getApps(this.getActivity(), AppUtils.SYSTEM);
         //得到用户app
+        //先清空集合
+        customerApps.clear();
         for (int i=0; i < cApps.size(); i++){
             AppInfo app = new AppInfo();
             app.setPackageName(cApps.get(i).activityInfo.packageName);
@@ -94,6 +96,8 @@ public class AppFragment extends Fragment implements AdapterView.OnItemLongClick
         }
 
         //得到系统app
+        //先清空集合
+        systemApps.clear();
         for (int i=0; i < sApps.size(); i++){
             AppInfo app = new AppInfo();
             app.setPackageName(sApps.get(i).activityInfo.packageName);

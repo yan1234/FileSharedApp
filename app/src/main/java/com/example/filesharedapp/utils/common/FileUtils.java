@@ -7,6 +7,8 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * 文件操作工具集
@@ -58,4 +60,26 @@ public class FileUtils {
             }
         }
     }
+
+    /**
+     * 对文件目录列表进行排序（按照先目录再文件，文件名升序排列）
+     * @param files
+     */
+    public static void sortListFile(File[] files){
+        Arrays.sort(files, new Comparator<File>() {
+            @Override
+            public int compare(File o1, File o2) {
+                //如果两个文件对象同为目录/文件，则按照文件名称升序排列
+                if (o1.isDirectory() == o2.isDirectory()){
+                    return String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName());
+                }else{
+                    //通过问号表达式处理
+                    //当前者为目录时，表示后者肯定为文件，直接返回-1
+                    //当前者为文件是，表示后者肯定为目录，直接返回1
+                    return o1.isDirectory() ? -1 : 1;
+                }
+            }
+        });
+    }
+
 }

@@ -17,17 +17,21 @@ import android.widget.Toast;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.fragment.adapter.OtherAdapter;
+import com.example.filesharedapp.app.fragment.entity.AppInfo;
 import com.example.filesharedapp.framework.storage.StorageManager;
 import com.example.filesharedapp.utils.common.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -82,6 +86,8 @@ public class OtherFragment extends Fragment {
     private void initEvent(){
         //获取根目录的文件列表(这里暂时不获取SD卡）
         files = FileUtils.getFiles(root);
+        //对文件列表进行排序
+        FileUtils.sortListFile(files);
         //初始化适配器
         adapter = new OtherAdapter(this.getActivity(), files);
         //设置父目录
@@ -156,6 +162,8 @@ public class OtherFragment extends Fragment {
         adapter.setParentFile(parent);
         adapter.notifyDataSetChanged();
     }
+
+
 
 
 }

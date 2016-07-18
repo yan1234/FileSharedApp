@@ -17,6 +17,7 @@ import com.example.filesharedapp.utils.common.DateUtils;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -30,13 +31,18 @@ public class MusicAdapter extends BaseAdapter{
     private Context mContext;
     //数据列表
     private List<MusicInfo> musics;
+    //定义map缓存view
+    private HashMap<Integer, View> viewMap = null;
     //定义已选择的列表
-    private List<MusicInfo> selectedMusic = new ArrayList<MusicInfo>();
+    private List<MusicInfo> selectedMusic = null;
 
 
     public MusicAdapter(Context context, List<MusicInfo> list){
         this.mContext = context;
         this.musics = list;
+        //初始化数据
+        viewMap = new HashMap<>();
+        selectedMusic = new ArrayList<>();
     }
 
     @Override
@@ -57,7 +63,8 @@ public class MusicAdapter extends BaseAdapter{
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder = null;
-        if (convertView == null){
+        //if (convertView == null){
+        if (!viewMap.containsKey(position) || viewMap.get(position) == null){
             viewHolder = new ViewHolder();
             //载入布局
             convertView = LayoutInflater.from(mContext)
@@ -67,7 +74,9 @@ public class MusicAdapter extends BaseAdapter{
             viewHolder.select = (CheckBox)convertView.findViewById(R.id.item_music_select);
             //添加到view中
             convertView.setTag(viewHolder);
+            viewMap.put(position, convertView);
         }else{
+            convertView = viewMap.get(position);
             viewHolder = (ViewHolder)convertView.getTag();
         }
         //将数据绑定到控件中
@@ -80,10 +89,7 @@ public class MusicAdapter extends BaseAdapter{
         float size = musics.get(position).getSize() / (1024*1024);
         viewHolder.size.setText(duration+"  " + size + "MB");
         //判断该项是否已选择
-        if (selectedMusic.contains(musics.get(position))){
-            //置为选中项
-            viewHolder.select.setChecked(true);
-        }
+        viewHolder.select.setChecked(selectedMusic.contains(musics.get(position)));
         //为radiobutton添加点击事件
         viewHolder.select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

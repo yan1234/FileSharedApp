@@ -51,9 +51,9 @@ public class AppAdapter extends BaseAdapter{
     private int icon_width = 0;
 
     //定义map存储载入的item
-    private HashMap<Integer, View> viewMap = new HashMap<Integer, View>();
+    private HashMap<Integer, View> viewMap = null;
     //定义选中记录的位置
-    public HashSet<Integer> indexSet = new HashSet<Integer>();
+    public HashSet<Integer> indexSet = null;
 
     public AppAdapter(Context context, List<AppInfo> apps){
         this.mContext = context;
@@ -62,6 +62,9 @@ public class AppAdapter extends BaseAdapter{
         this.screenWidth = mContext.getResources().getDisplayMetrics().widthPixels;
         //计算各个空间的宽高
         getMeasureWidth();
+        //初始化数据
+        viewMap = new HashMap<>();
+        indexSet = new HashSet<>();
     }
 
     /**

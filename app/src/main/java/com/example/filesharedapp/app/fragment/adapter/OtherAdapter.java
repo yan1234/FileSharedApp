@@ -16,6 +16,7 @@ import com.example.filesharedapp.framework.ui.icon.ResourceManager;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -28,14 +29,19 @@ public class OtherAdapter extends BaseAdapter{
     private Context mContext;
     //定义文件列表
     private File[] files;
+    //通过map缓存view
+    private HashMap<Integer, View> viewMap = null;
     //定义已选择的文件列表
-    private List<File> selectedFile = new ArrayList<File>();
+    private List<File> selectedFile = null;
     //定义变量保存父目录
     private File parentFile;
 
     public OtherAdapter(Context context, File[] files){
         this.mContext = context;
         this.files = files;
+        //初始化数据
+        viewMap = new HashMap<>();
+        selectedFile = new ArrayList<>();
     }
 
     @Override
@@ -56,7 +62,8 @@ public class OtherAdapter extends BaseAdapter{
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder = null;
-        if (convertView == null){
+        //if (convertView == null){
+        if (!viewMap.containsKey(position) || viewMap.get(position) == null){
             viewHolder = new ViewHolder();
             //载入布局
             convertView = LayoutInflater.from(mContext)
@@ -65,7 +72,9 @@ public class OtherAdapter extends BaseAdapter{
             viewHolder.name = (TextView)convertView.findViewById(R.id.item_other_name);
             viewHolder.select = (CheckBox)convertView.findViewById(R.id.item_other_select);
             convertView.setTag(viewHolder);
+            viewMap.put(position, convertView);
         }else{
+            convertView = viewMap.get(position);
             viewHolder = (ViewHolder)convertView.getTag();
         }
         /**
@@ -82,6 +91,7 @@ public class OtherAdapter extends BaseAdapter{
         //显示文件名
         viewHolder.name.setText(files[position].getName());
         //设置选择事件
+        viewHolder.select.setChecked(selectedFile.contains(files[position]));
         viewHolder.select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
