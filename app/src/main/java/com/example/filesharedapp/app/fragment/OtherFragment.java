@@ -157,7 +157,9 @@ public class OtherFragment extends Fragment {
         String showPath = parent.getPath().replace(root.getPath(), "");
         pathShowText.setText(showPath);
         //然后更新ListView文件列表
-        adapter.setFiles(FileUtils.getFiles(parent));
+        File[] tmpFiles = FileUtils.getFiles(parent);
+        FileUtils.sortListFile(tmpFiles);
+        adapter.setFiles(tmpFiles);
         //设置当前列表的父目录
         adapter.setParentFile(parent);
         adapter.notifyDataSetChanged();

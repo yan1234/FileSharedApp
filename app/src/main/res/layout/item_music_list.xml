@@ -21,6 +21,7 @@
             android:textSize="15sp"
             android:singleLine="true"
             android:ellipsize="middle"
+            android:gravity="center_vertical"
             android:text="我爱音乐.mp3"/>
 
         <!-- 大小 -->
@@ -31,6 +32,7 @@
             android:layout_marginLeft="10dp"
             android:layout_weight="1"
             android:textSize="12sp"
+            android:gravity="center_vertical"
             android:text="2.3MB"/>
 
     </LinearLayout>

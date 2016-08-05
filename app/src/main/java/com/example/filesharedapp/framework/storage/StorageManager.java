@@ -17,6 +17,8 @@ public class StorageManager {
      * FileShare
      *      -- cache            //缓存
      *          -- image        //图片缓存
+     *      -- download         //下载文件存储路径
+     *      -- upload           //上传文件存储路径
      */
 
 
@@ -26,7 +28,9 @@ public class StorageManager {
     private static final String CACHE_NAME = "cache";
     //定义图片缓存目录
     private static final String CACHE_IMAGE_NAME = "image";
-
+    //定义下载和上传文件目录名称
+    private static final String DOWNLOAD_NAME = "download";
+    private static final String UPLOAD_NAME = "upload";
     //定义单例模式对象
     private static StorageManager storageManager;
 
@@ -56,13 +60,7 @@ public class StorageManager {
      * @return
      */
     public File getAppRoot(){
-        File appRoot = new File(getSystemRoot(), APP_ROOT_NAME);
-        //判断文件目录是否存在
-        if (!appRoot.exists()){
-            //不存在即创建
-            appRoot.mkdirs();
-        }
-        return appRoot;
+        return getFile(getSystemRoot(), APP_ROOT_NAME);
     }
 
     /**
@@ -70,11 +68,7 @@ public class StorageManager {
      * @return
      */
     public File getAppCache(){
-        File appCache = new File(getAppRoot(), CACHE_NAME);
-        if (!appCache.exists()){
-            appCache.mkdirs();
-        }
-        return appCache;
+        return getFile(getAppRoot(), CACHE_NAME);
     }
 
     /**
@@ -82,11 +76,38 @@ public class StorageManager {
      * @return
      */
     public File getCacheOfImage(){
-        File imageCache = new File(getAppCache(), CACHE_IMAGE_NAME);
-        if (!imageCache.exists()){
-            imageCache.mkdirs();
+        return getFile(getAppCache(), CACHE_IMAGE_NAME);
+    }
+
+    /**
+     * 获取下载目录
+     * @return
+     */
+    public File getDownload(){
+        return getFile(getAppRoot(), DOWNLOAD_NAME);
+    }
+
+    /**
+     * 获取上传目录
+     * @return
+     */
+    public File getUpload(){
+        return getFile(getAppRoot(), UPLOAD_NAME);
+    }
+
+    /**
+     * 获取系统对应的存储目录（如果不存在则创建）
+     * @param parent，指定目录的父目录文件对象
+     * @param filename，待创建的文件名
+     * @return，返回当前文件对象
+     */
+    private File getFile(File parent, String filename){
+        //获取指定的目录
+        File file = new File(parent, filename);
+        if (!file.exists()){
+            file.mkdirs();
         }
-        return imageCache;
+        return file;
     }
 
 }
