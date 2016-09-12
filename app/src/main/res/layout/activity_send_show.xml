@@ -12,6 +12,13 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
+
+        <Button
+            android:id="@+id/btn"
+            android:layout_width="120dp"
+            android:layout_height="50dp"
+            android:text="开始传输"/>
+
         <!-- 生成的文件传输的二维码 -->
         <ImageView
             android:id="@+id/send_image_qrcode"
@@ -22,15 +29,13 @@
         <!-- 文件提示信息 -->
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="80dp"
+            android:layout_height="match_parent"
             android:layout_below="@+id/send_image_qrcode"
             android:orientation="vertical">
             <TextView
                 android:id="@+id/send_text_tips"
-                android:layout_width="200sp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:gravity="center"/>
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent" />
         </LinearLayout>
 
     </RelativeLayout>

@@ -52,39 +52,52 @@ public class MD5Utils {
         return result;
     }
 
+
     /**
-     * 根据文件对象计算文件的MD5
-     *
-     * @param file
-     * @return,返回该文件的MD5值
-     * @throws IOException
+     * 获取文件的md5值
+     * @param file，文件对象
+     * @return
      */
-    public static String getFileMD5String(File file) throws IOException {
-        FileInputStream in = new FileInputStream(file);
-        FileChannel ch = in.getChannel();
-        MappedByteBuffer byteBuffer = ch.map(FileChannel.MapMode.READ_ONLY, 0,
-                file.length());
-        messageDigest.update(byteBuffer);
-        return bufferToHex(messageDigest.digest());
-    }
-
-    private static String bufferToHex(byte bytes[]) {
-        return bufferToHex(bytes, 0, bytes.length);
-    }
-
-    private static String bufferToHex(byte bytes[], int m, int n) {
-        StringBuffer stringbuffer = new StringBuffer(2 * n);
-        int k = m + n;
-        for (int l = m; l < k; l++) {
-            appendHexPair(bytes[l], stringbuffer);
+    public static String getFileMD5(File file){
+        if (!file.isFile()){
+            return null;
         }
-        return stringbuffer.toString();
+        MessageDigest digest = null;
+        FileInputStream in = null;
+        byte buffer[] = new byte[1024];
+        int len;
+        try {
+            digest = MessageDigest.getInstance("MD5");
+            in = new FileInputStream(file);
+            while ((len = in.read(buffer)) != -1) {
+                digest.update(buffer, 0, len);
+            }
+            in.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return bytes2hex(digest.digest()).toUpperCase();
     }
 
-    private static void appendHexPair(byte bt, StringBuffer stringbuffer) {
-        char c0 = hexDigits[(bt & 0xf0) >> 4];
-        char c1 = hexDigits[bt & 0xf];
-        stringbuffer.append(c0);
-        stringbuffer.append(c1);
+    /**
+     * 将byte转化为16进制数据
+     * @param bytes
+     * @return
+     */
+    public static String bytes2hex(byte[] bytes)
+    {
+        final String HEX = "0123456789abcdef";
+        StringBuilder sb = new StringBuilder(bytes.length * 2);
+        for (byte b : bytes)
+        {
+            // 取出这个字节的高4位，然后与0x0f与运算，得到一个0-15之间的数据，通过HEX.charAt(0-15)即为16进制数
+            sb.append(HEX.charAt((b >> 4) & 0x0f));
+            // 取出这个字节的低位，与0x0f与运算，得到一个0-15之间的数据，通过HEX.charAt(0-15)即为16进制数
+            sb.append(HEX.charAt(b & 0x0f));
+        }
+        return sb.toString();
     }
+
+
 }
