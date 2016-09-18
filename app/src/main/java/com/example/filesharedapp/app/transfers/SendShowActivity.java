@@ -2,10 +2,12 @@ package com.example.filesharedapp.app.transfers;
 
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.transfers.entity.FileInfo;
@@ -20,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -109,18 +112,31 @@ public class SendShowActivity extends BaseActivity {
     }
 
     private void startSend(){
+        Log.d("haha", "端口号为：" + qrcodeInfo.getHostPort());
         new Thread(new Runnable() {
             @Override
             public void run() {
 
                 try {
-                    ServerSocket server = new ServerSocket(57189);
+                    ServerSocket server = new ServerSocket(qrcodeInfo.getHostPort());
                     Socket socket = server.accept();
 
                     InputStream in = socket.getInputStream();
                     OutputStream out = socket.getOutputStream();
 
+                    OutputStreamWriter osw = new OutputStreamWriter(out, "utf-8");
+                    //获取文件的输入流
+                    FileInputStream fis = new FileInputStream(new File(qrcodeInfo.getFiles().get(0).getPath()));
 
+                    int length = 0;
+                    byte[] buff = new byte[1024];
+                    while((length = fis.read(buff)) != -1){
+                        out.write(buff, 0, length);
+                    }
+
+                    out.flush();
+                    out.close();
+                    fis.close();
 
 
                 } catch (IOException e) {
