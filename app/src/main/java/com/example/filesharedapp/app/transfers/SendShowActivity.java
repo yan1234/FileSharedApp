@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.transfers.entity.FileInfo;
 import com.example.filesharedapp.app.transfers.entity.QrcodeInfo;
+import com.example.filesharedapp.core.SocketInApp;
 import com.example.filesharedapp.framework.ui.base.BaseActivity;
 import com.example.filesharedapp.utils.json.JsonUtil;
 import com.example.filesharedapp.utils.md5.MD5Utils;
@@ -113,38 +114,6 @@ public class SendShowActivity extends BaseActivity {
 
     private void startSend(){
         Log.d("haha", "端口号为：" + qrcodeInfo.getHostPort());
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    ServerSocket server = new ServerSocket(qrcodeInfo.getHostPort());
-                    Socket socket = server.accept();
-
-                    InputStream in = socket.getInputStream();
-                    OutputStream out = socket.getOutputStream();
-
-                    OutputStreamWriter osw = new OutputStreamWriter(out, "utf-8");
-                    //获取文件的输入流
-                    FileInputStream fis = new FileInputStream(new File(qrcodeInfo.getFiles().get(0).getPath()));
-
-                    int length = 0;
-                    byte[] buff = new byte[1024];
-                    while((length = fis.read(buff)) != -1){
-                        out.write(buff, 0, length);
-                    }
-
-                    out.flush();
-                    out.close();
-                    fis.close();
-
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-            }
-        }).start();
+        SocketInApp.startServerSocket(qrcodeInfo);
     }
 }
