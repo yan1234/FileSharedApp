@@ -1,6 +1,5 @@
 package com.example.filesharedapp.app.fragment;
 
-import android.content.pm.ResolveInfo;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,10 +11,9 @@ import android.widget.Toast;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.fragment.adapter.AppAdapter;
-import com.example.filesharedapp.app.fragment.entity.AppInfo;
-import com.example.filesharedapp.utils.systemutils.AppUtils;
+import com.example.filesharedapp.framework.media.MediaManager;
+import com.example.filesharedapp.framework.media.entity.AppInfo;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -37,10 +35,8 @@ public class AppFragment extends Fragment implements AdapterView.OnItemLongClick
     private GridView appGridView;
     //定义适配器
     private AppAdapter adapter;
-    //定义系统预装app列表
-    private List<AppInfo> systemApps = new ArrayList<AppInfo>();
-    //定义用户安装的app列表
-    private List<AppInfo> customerApps = new ArrayList<AppInfo>();
+    //定义列表保存系统的app列表信息
+    private List<AppInfo> appInfos;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -68,58 +64,11 @@ public class AppFragment extends Fragment implements AdapterView.OnItemLongClick
         //获取手机上安装的app信息
         getAppInfos();
         //初始化适配器
-        adapter = new AppAdapter(this.getActivity(), customerApps);
+        adapter = new AppAdapter(this.getActivity(), appInfos);
         //绑定适配器
         appGridView.setAdapter(adapter);
         //设置长按点击选择事件
         appGridView.setOnItemLongClickListener(this);
-    }
-
-    /**
-     * 获取手机上安装的app信息
-     */
-    private void getAppInfos(){
-        //得到用户的app列表
-        List<ResolveInfo> cApps = AppUtils.getApps(this.getActivity(), AppUtils.CUSTOMER);
-        List<ResolveInfo> sApps = AppUtils.getApps(this.getActivity(), AppUtils.SYSTEM);
-        //得到用户app
-        //先清空集合
-        customerApps.clear();
-        for (int i=0; i < cApps.size(); i++){
-            AppInfo app = new AppInfo();
-            app.setPackageName(cApps.get(i).activityInfo.packageName);
-            app.setAppLabel(cApps.get(i).loadLabel(this.getActivity().getPackageManager()).toString());
-            app.setIcon(cApps.get(i).loadIcon(this.getActivity().getPackageManager()));
-            app.setSourceDir(cApps.get(i).activityInfo.applicationInfo.sourceDir);
-            app.setIsSystem(false);
-            customerApps.add(app);
-        }
-
-        //得到系统app
-        //先清空集合
-        systemApps.clear();
-        for (int i=0; i < sApps.size(); i++){
-            AppInfo app = new AppInfo();
-            app.setPackageName(sApps.get(i).activityInfo.packageName);
-            app.setAppLabel(sApps.get(i).loadLabel(this.getActivity().getPackageManager()).toString());
-            app.setIcon(sApps.get(i).loadIcon(this.getActivity().getPackageManager()));
-            app.setSourceDir(sApps.get(i).activityInfo.applicationInfo.sourceDir);
-            app.setIsSystem(true);
-            systemApps.add(app);
-        }
-        //对名称按照字母排序
-        Collections.sort(customerApps, new Comparator<AppInfo>() {
-            @Override
-            public int compare(AppInfo lhs, AppInfo rhs) {
-                return String.CASE_INSENSITIVE_ORDER.compare(lhs.getAppLabel(),rhs.getAppLabel());
-            }
-        });
-        Collections.sort(systemApps, new Comparator<AppInfo>() {
-            @Override
-            public int compare(AppInfo lhs, AppInfo rhs) {
-                return String.CASE_INSENSITIVE_ORDER.compare(lhs.getAppLabel(),rhs.getAppLabel());
-            }
-        });
     }
 
 
@@ -146,6 +95,18 @@ public class AppFragment extends Fragment implements AdapterView.OnItemLongClick
             }
         }
         return true;
+    }
+
+    private void getAppInfos(){
+        //获取APP列表
+        appInfos = MediaManager.getInstance(this.getActivity()).getAppInfos();
+        //对名称按照字母排序
+        Collections.sort(appInfos, new Comparator<AppInfo>() {
+            @Override
+            public int compare(AppInfo lhs, AppInfo rhs) {
+                return String.CASE_INSENSITIVE_ORDER.compare(lhs.getName(), rhs.getName());
+            }
+        });
     }
 
 }

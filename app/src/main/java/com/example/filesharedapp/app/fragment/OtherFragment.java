@@ -2,9 +2,7 @@ package com.example.filesharedapp.app.fragment;
 
 
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,22 +15,10 @@ import android.widget.Toast;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.fragment.adapter.OtherAdapter;
-import com.example.filesharedapp.app.fragment.entity.AppInfo;
 import com.example.filesharedapp.framework.storage.StorageManager;
 import com.example.filesharedapp.utils.common.FileUtils;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * 其他Fragment

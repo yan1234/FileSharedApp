@@ -2,17 +2,23 @@ package com.example.filesharedapp.framework.media;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.provider.MediaStore;
 
+import com.example.filesharedapp.framework.media.entity.AppInfo;
 import com.example.filesharedapp.framework.media.entity.MusicInfo;
 import com.example.filesharedapp.framework.media.entity.PhotoInfo;
 import com.example.filesharedapp.framework.media.entity.VideoInfo;
+import com.example.filesharedapp.utils.systemutils.AppUtils;
 import com.google.zxing.common.BitMatrix;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -48,10 +54,34 @@ public class MediaManager {
     }
 
     /**
+     * 获取手机上安装的app信息
+     */
+    public List<AppInfo> getAppInfos(){
+        //得到用户的app列表
+        List<AppInfo> appList = new ArrayList<>();
+        List<ResolveInfo> apps = AppUtils.getApps(mContext, AppUtils.ALL);
+        for (int i=0; i < apps.size(); i++){
+            AppInfo app = new AppInfo();
+            app.setPackageName(apps.get(i).activityInfo.packageName);
+            app.setName(apps.get(i).loadLabel(mContext.getPackageManager()).toString());
+            app.setIcon(apps.get(i).loadIcon(mContext.getPackageManager()));
+            app.setPath(apps.get(i).activityInfo.applicationInfo.sourceDir);
+            //判断是否是系统用户
+            if ((apps.get(i).activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) > 0){
+                app.setIsSystem(true);
+            }else{
+                app.setIsSystem(false);
+            }
+            appList.add(app);
+        }
+        return appList;
+    }
+
+    /**
      * 获取手机中的图片
      * @return，图片信息列表
      */
-    public List<PhotoInfo> getImages(){
+    public List<PhotoInfo> getImages() {
         List<PhotoInfo> photos = new ArrayList<PhotoInfo>();
         //查询出手机上的图片
         Cursor cursor = contentResolver.query(

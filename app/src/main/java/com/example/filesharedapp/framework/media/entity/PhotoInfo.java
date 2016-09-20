@@ -6,7 +6,7 @@ import java.io.Serializable;
  * 图片信息实体
  * Created by yanling on 2015/11/2.
  */
-public class PhotoInfo implements Serializable{
+public class PhotoInfo extends BaseFileInfo implements Serializable{
     private static final long serialVersionUID = 6388516619600826460L;
 
     //资源数据库中id
@@ -16,28 +16,31 @@ public class PhotoInfo implements Serializable{
     private String bucketName;
 
     //图片名称
-    private String name;
+    //private String name;
 
     //图片类型
     private String mimeType;
 
     //图片地址
-    private String path;
+    //private String path;
 
     //图片大小
-    private long size;
+    //private long size;
 
     public PhotoInfo(){
-
+        //设置类型为图片
+        super.setType(BaseFileInfo.TYPE_PHOTO);
     }
 
     public PhotoInfo(int id, String bucketName, String name, String mimeType, String path, long size) {
         this.id = id;
         this.bucketName = bucketName;
-        this.name = name;
         this.mimeType = mimeType;
-        this.path = path;
-        this.size = size;
+        super.setName(name);
+        super.setPath(path);
+        super.setSize(size);
+        //设置类型为图片
+        super.setType(BaseFileInfo.TYPE_PHOTO);
     }
 
     public int getId() {
@@ -56,13 +59,6 @@ public class PhotoInfo implements Serializable{
         this.bucketName = bucketName;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public String getMimeType() {
         return mimeType;
@@ -72,19 +68,4 @@ public class PhotoInfo implements Serializable{
         this.mimeType = mimeType;
     }
 
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public long getSize() {
-        return size;
-    }
-
-    public void setSize(long size) {
-        this.size = size;
-    }
 }

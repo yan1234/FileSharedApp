@@ -22,6 +22,7 @@ import com.example.filesharedapp.app.fragment.OtherFragment;
 import com.example.filesharedapp.app.fragment.PhotoFragment;
 import com.example.filesharedapp.app.fragment.VideoFragment;
 import com.example.filesharedapp.app.transfers.SendShowActivity;
+import com.example.filesharedapp.app.transfers.TransferShowActivity;
 import com.example.filesharedapp.app.transfers.entity.QrcodeInfo;
 import com.example.filesharedapp.utils.json.JsonUtil;
 import com.example.scanlibrary.ScanCameraActivity;
@@ -47,6 +48,8 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
     private FragmentPagerAdapter mAdapter;
     //定义fragment集合
     private List<Fragment> fragments = new ArrayList<Fragment>();
+    //定义当前页面的位置
+    private int position = 0;
 
     //定义tab切换的头部linearlayout
     private LinearLayout appLayout;
@@ -195,11 +198,13 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
                 //封装待发送的文件路径
                 //.....
                 startActivity(intent);
+                home_shortcut_frame.setVisibility(View.GONE);
                 break;
             //扫描二维码
             case R.id.home_shortcut_accept:
                 startActivityForResult(new Intent(HomeMainActivity.this, ScanCameraActivity.class),
                         100);
+                home_shortcut_frame.setVisibility(View.GONE);
                 break;
             case R.id.tab0:
                 selectPage(0);
@@ -246,6 +251,8 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
                 line_tab4.setVisibility(View.VISIBLE);
                 break;
         }
+        //记录当前fragment的位置
+        this.position = position;
 
     }
 
@@ -273,6 +280,12 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
                 //将字符串信息转化为传输实体
                 QrcodeInfo qrcodeInfo = JsonUtil.jsonToObject(code, QrcodeInfo.class);
                 //传递信息到文件发送页面
+                Intent intent = new Intent(HomeMainActivity.this, TransferShowActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("QrcodeInfo", qrcodeInfo);
+                intent.putExtras(bundle);
+                //跳转到传输界面
+                startActivity(intent);
             }
         }
     }

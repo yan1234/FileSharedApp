@@ -1,5 +1,7 @@
 package com.example.filesharedapp.app.transfers.entity;
 
+import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -15,7 +17,7 @@ public class QrcodeInfo implements Serializable{
     private int hostPort;
 
     //文件信息列表，定义list方便后期扩展发送多个文件（注意文件不能太多，可能会超出二维码存储的容量）
-    private List<FileInfo> files;
+    private List<BaseFileInfo> files;
 
     public int getHostPort() {
         return hostPort;
@@ -25,11 +27,11 @@ public class QrcodeInfo implements Serializable{
         this.hostPort = hostPort;
     }
 
-    public List<FileInfo> getFiles() {
+    public List<BaseFileInfo> getFiles() {
         return files;
     }
 
-    public void setFiles(List<FileInfo> files) {
+    public void setFiles(List<BaseFileInfo> files) {
         this.files = files;
     }
 }

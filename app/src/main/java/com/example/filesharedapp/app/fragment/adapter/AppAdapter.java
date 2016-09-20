@@ -6,16 +6,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.filesharedapp.R;
-import com.example.filesharedapp.app.fragment.entity.AppInfo;
+import com.example.filesharedapp.framework.media.entity.AppInfo;
 
 import java.util.HashMap;
 import java.util.HashSet;
