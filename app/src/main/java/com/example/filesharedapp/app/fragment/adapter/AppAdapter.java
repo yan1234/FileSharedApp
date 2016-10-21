@@ -127,7 +127,7 @@ public class AppAdapter extends BaseAdapter{
         //设置图标
         viewHolder.icon.setImageDrawable(apps.get(position).getIcon());
         //设置标签
-        viewHolder.label.setText(apps.get(position).getAppLabel());
+        viewHolder.label.setText(apps.get(position).getName());
         //判断当前的位置是否有选中的index
         if (indexSet.contains(position)){
             viewHolder.layout.setBackgroundColor(mContext.getResources().getColor(R.color.long_click_selected));

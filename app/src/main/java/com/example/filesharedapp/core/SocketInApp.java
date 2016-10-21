@@ -93,7 +93,7 @@ public class SocketInApp {
                 BaseFileInfo baseFileInfo = map.get(md5);
                 //将数据流输出到文件
                 FileOutputStream fos = new FileOutputStream(
-                        StorageManager.getInstance().getDownload() + File.separator + baseFileInfo.getFileName());
+                        StorageManager.getInstance().getDownload() + File.separator + baseFileInfo.getName());
                 //定义下载的长度
                 int downloadSize = 0;
                 int length = 0;
