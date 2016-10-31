@@ -6,6 +6,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.provider.MediaStore;
 
@@ -64,7 +67,8 @@ public class MediaManager {
             AppInfo app = new AppInfo();
             app.setPackageName(apps.get(i).activityInfo.packageName);
             app.setName(apps.get(i).loadLabel(mContext.getPackageManager()).toString());
-            app.setIcon(apps.get(i).loadIcon(mContext.getPackageManager()));
+            Drawable drawable = apps.get(i).loadIcon(mContext.getPackageManager());
+            app.setIcon(((BitmapDrawable)drawable).getBitmap());
             app.setPath(apps.get(i).activityInfo.applicationInfo.sourceDir);
             //判断是否是系统用户
             if ((apps.get(i).activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) > 0){

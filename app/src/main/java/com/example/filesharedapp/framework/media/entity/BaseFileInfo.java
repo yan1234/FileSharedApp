@@ -32,6 +32,18 @@ public class BaseFileInfo implements Serializable{
     //文件的md5值，主要用于校验文件的完整性
     private String md5;
 
+    public BaseFileInfo(){
+
+    }
+
+    public BaseFileInfo(String name, String path, long size, String md5, int type){
+        this.name = name;
+        this.path = path;
+        this.size = size;
+        this.md5 = md5;
+        this.type = type;
+    }
+
     public String getName() {
         return name;
     }

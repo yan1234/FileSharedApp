@@ -11,7 +11,9 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.example.filesharedapp.R;
+import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
 import com.example.filesharedapp.framework.media.entity.MusicInfo;
+import com.example.filesharedapp.framework.ui.base.BasicAdapter;
 import com.example.filesharedapp.utils.common.DateUtils;
 
 import org.w3c.dom.Text;
@@ -24,40 +26,16 @@ import java.util.List;
  * 音乐list适配器
  * Created by yanling on 2015/11/3.
  */
-public class MusicAdapter extends BaseAdapter{
+public class MusicAdapter extends BasicAdapter {
 
-
-    //定义上下文
-    private Context mContext;
-    //数据列表
-    private List<MusicInfo> musics;
     //定义map缓存view
     private HashMap<Integer, View> viewMap = null;
-    //定义已选择的列表
-    private List<MusicInfo> selectedMusic = null;
 
 
-    public MusicAdapter(Context context, List<MusicInfo> list){
-        this.mContext = context;
-        this.musics = list;
+    public MusicAdapter(Context context, List<MusicInfo> list, ArrayList<BaseFileInfo> selectList){
+        super(context, list, selectList);
         //初始化数据
         viewMap = new HashMap<>();
-        selectedMusic = new ArrayList<>();
-    }
-
-    @Override
-    public int getCount() {
-        return musics == null ? 0: musics.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return musics==null ? null:musics.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
     }
 
     @Override
@@ -80,26 +58,26 @@ public class MusicAdapter extends BaseAdapter{
             viewHolder = (ViewHolder)convertView.getTag();
         }
         //将数据绑定到控件中
-        viewHolder.name.setText(musics.get(position).getName());
+        viewHolder.name.setText(((MusicInfo)list.get(position)).getName());
         //计算时长
-        long time[] = DateUtils.millisToTime(musics.get(position).getDuration());
+        long time[] = DateUtils.millisToTime(((MusicInfo)list.get(position)).getDuration());
         //这里音乐不可能到天数，毫秒数也可以去掉，直接处理了
         String duration = "" + time[3]+":"+time[4]+":"+time[5];
         //将大小换算成MB
-        float size = musics.get(position).getSize() / (1024*1024);
+        float size = ((MusicInfo)list.get(position)).getSize() / (1024*1024);
         viewHolder.size.setText(duration+"  " + size + "MB");
         //判断该项是否已选择
-        viewHolder.select.setChecked(selectedMusic.contains(musics.get(position)));
+        viewHolder.select.setChecked(selectList.contains(list.get(position)));
         //为radiobutton添加点击事件
         viewHolder.select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
                     //添加到选择列表中
-                    selectedMusic.add(musics.get(position));
+                    selectList.add((BaseFileInfo)list.get(position));
                 }else{
                     //从选择列表中移除
-                    selectedMusic.remove(musics.get(position));
+                    selectList.remove(list.get(position));
                 }
             }
         });
@@ -112,7 +90,4 @@ public class MusicAdapter extends BaseAdapter{
         public CheckBox select;
     }
 
-    public List<MusicInfo> getSelectedMusic() {
-        return selectedMusic;
-    }
 }

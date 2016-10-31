@@ -14,7 +14,10 @@ import android.widget.TextView;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.framework.media.entity.AppInfo;
+import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
+import com.example.filesharedapp.framework.ui.base.BasicAdapter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +26,7 @@ import java.util.List;
  * app展示界面适配器
  * Created by yanling on 2015/10/30.
  */
-public class AppAdapter extends BaseAdapter{
+public class AppAdapter extends BasicAdapter {
 
     //每一个item中layout布局的padding值
     public static final int LAYOUT_PADDING = 8;
@@ -38,10 +41,6 @@ public class AppAdapter extends BaseAdapter{
     //定义map中存储的view的最大数
     public static final int MAX_VIEW_SIZE = 30;
 
-    //定义上下文
-    private Context mContext;
-    //定义app数据列表
-    private List<AppInfo> apps;
     //定义屏幕的宽度，计算每一个item应该设置多宽来保证始终有4列
     private int screenWidth = 0;
     //定义变量拜师布局的宽度和图片的宽度（这里将布局和图片都设置成正方形，即宽=高）
@@ -50,19 +49,16 @@ public class AppAdapter extends BaseAdapter{
 
     //定义map存储载入的item
     private HashMap<Integer, View> viewMap = null;
-    //定义选中记录的位置
-    public HashSet<Integer> indexSet = null;
 
-    public AppAdapter(Context context, List<AppInfo> apps){
-        this.mContext = context;
-        this.apps = apps;
+
+    public AppAdapter(Context context, List<AppInfo> list, ArrayList<BaseFileInfo> selectList){
+        super(context, list, selectList);
         //得到屏幕的宽度
         this.screenWidth = mContext.getResources().getDisplayMetrics().widthPixels;
         //计算各个空间的宽高
         getMeasureWidth();
         //初始化数据
         viewMap = new HashMap<>();
-        indexSet = new HashSet<>();
     }
 
     /**
@@ -82,20 +78,6 @@ public class AppAdapter extends BaseAdapter{
 
     }
 
-    @Override
-    public int getCount() {
-        return apps == null ? 0:apps.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return apps == null ? null:apps.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -125,11 +107,11 @@ public class AppAdapter extends BaseAdapter{
         iconParams.gravity = Gravity.CENTER_HORIZONTAL;
         viewHolder.icon.setLayoutParams(iconParams);
         //设置图标
-        viewHolder.icon.setImageDrawable(apps.get(position).getIcon());
+        viewHolder.icon.setImageBitmap(((AppInfo) list.get(position)).getIcon());
         //设置标签
-        viewHolder.label.setText(apps.get(position).getName());
-        //判断当前的位置是否有选中的index
-        if (indexSet.contains(position)){
+        viewHolder.label.setText(((AppInfo)list.get(position)).getName());
+        //判断当前的位置是否有选中的item
+        if (selectList.contains(list.get(position))){
             viewHolder.layout.setBackgroundColor(mContext.getResources().getColor(R.color.long_click_selected));
         }
         //清除多余的view

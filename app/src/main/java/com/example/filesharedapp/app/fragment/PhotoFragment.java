@@ -12,6 +12,7 @@ import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.fragment.adapter.PhotoAdapter;
 import com.example.filesharedapp.framework.media.MediaManager;
 import com.example.filesharedapp.framework.media.entity.PhotoInfo;
+import com.example.filesharedapp.framework.ui.base.BaseFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.List;
  * @author yanling
  * @date 2015-10-16
  */
-public class PhotoFragment extends Fragment {
+public class PhotoFragment extends BaseFragment {
 
     //定义界面的view对象
     private View view;

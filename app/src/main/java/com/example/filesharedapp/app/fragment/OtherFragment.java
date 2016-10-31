@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.fragment.adapter.OtherAdapter;
 import com.example.filesharedapp.framework.storage.StorageManager;
+import com.example.filesharedapp.framework.ui.base.BaseFragment;
 import com.example.filesharedapp.utils.common.FileUtils;
 
 import java.io.File;
@@ -25,7 +26,7 @@ import java.io.File;
  * @author yaning
  * @date 2015-10-16
  */
-public class OtherFragment extends Fragment {
+public class OtherFragment extends BaseFragment {
 
 
     //定义文件操作的根目录

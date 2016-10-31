@@ -24,10 +24,16 @@ import com.example.filesharedapp.app.fragment.VideoFragment;
 import com.example.filesharedapp.app.transfers.SendShowActivity;
 import com.example.filesharedapp.app.transfers.TransferShowActivity;
 import com.example.filesharedapp.app.transfers.entity.QrcodeInfo;
+import com.example.filesharedapp.framework.media.entity.AppInfo;
+import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
+import com.example.filesharedapp.framework.ui.base.BaseFragment;
 import com.example.filesharedapp.utils.json.JsonUtil;
 import com.example.scanlibrary.ScanCameraActivity;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -47,7 +53,7 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
     //定义fragment适配器
     private FragmentPagerAdapter mAdapter;
     //定义fragment集合
-    private List<Fragment> fragments = new ArrayList<Fragment>();
+    private List<BaseFragment> fragments = new ArrayList<BaseFragment>();
     //定义当前页面的位置
     private int position = 0;
 
@@ -158,9 +164,10 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
             }
 
             @Override
-            public void onPageSelected(int position) {
+            public void onPageSelected(int index) {
                 //设置线条样式
-                selectPage(position);
+                selectPage(index);
+                position = index;
             }
 
             @Override
@@ -196,7 +203,29 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
             case R.id.home_shortcut_send:
                 Intent intent = new Intent(HomeMainActivity.this, SendShowActivity.class);
                 //封装待发送的文件路径
-                //.....
+                Bundle bundle = new Bundle();
+                /**
+                 * 当传递APP信息时，由于实体中包含图片，所以讲图片去掉
+                 */
+                if (position == 0){
+                    ArrayList<BaseFileInfo> fileInfos = new ArrayList<>();
+                    List<BaseFileInfo> baseFileInfos = fragments.get(position).getSelectList();
+                    for(int i=0; i < baseFileInfos.size(); i++){
+                        BaseFileInfo baseFileInfo = new BaseFileInfo(
+                                baseFileInfos.get(i).getName(),
+                                baseFileInfos.get(i).getPath(),
+                                baseFileInfos.get(i).getSize(),
+                                baseFileInfos.get(i).getMd5(),
+                                baseFileInfos.get(i).getType()
+                        );
+                        fileInfos.add(baseFileInfo);
+                    }
+                    bundle.putSerializable("fileinfos", fileInfos);
+                }else{
+                    bundle.putSerializable("fileinfos", fragments.get(position).getSelectList());
+                }
+
+                intent.putExtras(bundle);
                 startActivity(intent);
                 home_shortcut_frame.setVisibility(View.GONE);
                 break;
@@ -208,18 +237,23 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
                 break;
             case R.id.tab0:
                 selectPage(0);
+                position = 0;
                 break;
             case R.id.tab1:
                 selectPage(1);
+                position = 1;
                 break;
             case R.id.tab2:
                 selectPage(2);
+                position = 2;
                 break;
             case R.id.tab3:
                 selectPage(3);
+                position = 3;
                 break;
             case R.id.tab4:
                 selectPage(4);
+                position = 4;
                 break;
 
         }

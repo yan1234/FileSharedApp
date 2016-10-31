@@ -1,5 +1,6 @@
 package com.example.filesharedapp.framework.media.entity;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 import java.io.Serializable;
@@ -19,7 +20,7 @@ public class AppInfo extends BaseFileInfo implements Serializable{
     private String packageName;
 
     //应用图标
-    private Drawable icon;
+    private Bitmap icon;
 
     //应用apk安装包路径（通过基类的path继承）
     //private String sourceDir;
@@ -41,11 +42,11 @@ public class AppInfo extends BaseFileInfo implements Serializable{
         this.packageName = packageName;
     }
 
-    public Drawable getIcon() {
+    public Bitmap getIcon() {
         return icon;
     }
 
-    public void setIcon(Drawable icon) {
+    public void setIcon(Bitmap icon) {
         this.icon = icon;
     }
 

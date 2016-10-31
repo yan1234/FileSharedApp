@@ -12,6 +12,7 @@ import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.fragment.adapter.VideoAdapter;
 import com.example.filesharedapp.framework.media.MediaManager;
 import com.example.filesharedapp.framework.media.entity.VideoInfo;
+import com.example.filesharedapp.framework.ui.base.BaseFragment;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ import java.util.List;
  * @author yaning
  * @date 2015-10-16
  */
-public class VideoFragment extends Fragment {
+public class VideoFragment extends BaseFragment {
 
 
     //定义界面view
