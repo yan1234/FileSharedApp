@@ -10,13 +10,16 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.framework.cache.ImageLoaderManager;
 import com.example.filesharedapp.framework.media.MediaManager;
+import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
 import com.example.filesharedapp.framework.media.entity.VideoInfo;
 import com.example.filesharedapp.framework.storage.StorageManager;
+import com.example.filesharedapp.framework.ui.base.BasicAdapter;
 import com.example.filesharedapp.utils.common.DateUtils;
 import com.example.filesharedapp.utils.common.FileUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -31,38 +34,11 @@ import java.util.List;
  * 视频列表适配器
  * Created by yanling on 2015/11/4.
  */
-public class VideoAdapter extends BaseAdapter{
-
-    //上下文
-    private Context mContext;
-    //数据列表
-    private List<VideoInfo> videos;
-    //定义Map保存view集合
-    private HashMap<Integer, View> viewMap = null;
-    //定义选择的列表
-    private List<VideoInfo> selectedVideo = null;
+public class VideoAdapter extends BasicAdapter {
 
 
-    public VideoAdapter(Context context, List<VideoInfo> list){
-        this.mContext = context;
-        this.videos = list;
-        //初始化数据
-        viewMap = new HashMap<>();
-        selectedVideo = new ArrayList<>();
-    }
-    @Override
-    public int getCount() {
-        return videos==null ? 0:videos.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return videos==null ? null:videos.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
+    public VideoAdapter(Context context, List list, ArrayList<BaseFileInfo> selectList){
+        super(context, list, selectList);
     }
 
     @Override
@@ -70,7 +46,7 @@ public class VideoAdapter extends BaseAdapter{
         ViewHolder viewHolder = null;
         //if (convertView == null){
         //不存在临时缓存map中或为空
-        if (!viewMap.containsKey(position) || viewMap.get(position) == null){
+        if (!viewCacheMap.containsKey(position) || viewCacheMap.get(position) == null){
             viewHolder = new ViewHolder();
             //载入布局
             convertView = LayoutInflater.from(mContext)
@@ -81,10 +57,10 @@ public class VideoAdapter extends BaseAdapter{
             viewHolder.select = (CheckBox)convertView.findViewById(R.id.item_video_select);
             convertView.setTag(viewHolder);
             //添加到缓存中
-            viewMap.put(position, convertView);
+            viewCacheMap.put(position, convertView);
         }else{
             //从缓存中取出
-            convertView = viewMap.get(position);
+            convertView = viewCacheMap.get(position);
             viewHolder = (ViewHolder)convertView.getTag();
         }
         //将数据绑定到控件
@@ -92,11 +68,11 @@ public class VideoAdapter extends BaseAdapter{
                 .getVideoThumbnail(videos.get(position).getPath()));*/
         //这里为了能使用ImageLoader进行图片加载，先判断是否对图片进行缓存了
         //缓存的图片就以视频实体id命名
-        File cacheImg = new File(StorageManager.getInstance().getCacheOfImage(), videos.get(position).getId()+"");
+        File cacheImg = new File(StorageManager.getInstance().getCacheOfImage(), ((VideoInfo)list.get(position)).getId()+"");
         if (!cacheImg.exists()){
             //保存bitmap
             Bitmap bitmap = MediaManager.getInstance(mContext)
-                    .getVideoThumbnail(videos.get(position).getPath());
+                    .getVideoThumbnail(((VideoInfo)list.get(position)).getPath());
             //缓存图片
             FileUtils.saveBitmap(bitmap, cacheImg.getPath());
         }
@@ -112,42 +88,39 @@ public class VideoAdapter extends BaseAdapter{
                         img.setImageBitmap(loadedImage);
                     }
                 });
-        viewHolder.name.setText(videos.get(position).getName());
+        viewHolder.name.setText(((VideoInfo)list.get(position)).getName());
         //计算时长
-        long time[] = DateUtils.millisToTime(videos.get(position).getDuration());
+        long time[] = DateUtils.millisToTime(((VideoInfo)list.get(position)).getDuration());
         //这里视频不可能到天数，毫秒数也可以去掉，直接处理了
         String duration = "" + time[3]+":"+time[4]+":"+time[5];
         //将大小换算成MB
-        float size = videos.get(position).getSize() / (1024*1024);
-        viewHolder.size.setText(duration+"  " + size + "MB");
+        float size = ((VideoInfo)list.get(position)).getSize() / (1024*1024);
+        viewHolder.size.setText(duration + "  " + size + "MB");
         //判断该项是否已选择
-        viewHolder.select.setChecked(selectedVideo.contains(videos.get(position)));
-        //为radiobutton添加点击事件
+        viewHolder.select.setChecked(selectList.contains(list.get(position)));
         viewHolder.select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked){
                     //添加到选择列表中
-                    selectedVideo.add(videos.get(position));
+                    selectList.add((BaseFileInfo)list.get(position));
                 }else{
                     //从选择列表中移除
-                    selectedVideo.remove(videos.get(position));
+                    selectList.remove(list.get(position));
                 }
             }
         });
-
+        if (viewCacheMap.size() > 30){
+            clearCacheView(convertView, (ListView)parent);
+        }
         return convertView;
     }
 
-    private class ViewHolder{
+    public class ViewHolder{
         public ImageView image;
         public TextView name;
         public TextView size;
         public CheckBox select;
 
-    }
-
-    public List<VideoInfo> getSelectedVideo() {
-        return selectedVideo;
     }
 }

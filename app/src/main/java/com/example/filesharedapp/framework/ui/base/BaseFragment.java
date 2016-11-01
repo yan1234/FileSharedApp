@@ -19,12 +19,12 @@ public class BaseFragment extends Fragment {
     //定义整个布局view
     protected View view;
     //定义适配器
-    protected BaseAdapter basicAdapter;
+    protected BasicAdapter adapter;
     //定义选中的文件信息列表
     protected ArrayList<BaseFileInfo> selectList = new ArrayList<>();
 
-    public BaseAdapter getBasicAdapter() {
-        return basicAdapter;
+    public BaseAdapter getAdapter() {
+        return adapter;
     }
 
     public ArrayList<BaseFileInfo> getSelectList() {

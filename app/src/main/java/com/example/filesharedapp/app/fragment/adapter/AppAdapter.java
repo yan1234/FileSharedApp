@@ -47,9 +47,6 @@ public class AppAdapter extends BasicAdapter {
     private int layout_width = 0;
     private int icon_width = 0;
 
-    //定义map存储载入的item
-    private HashMap<Integer, View> viewMap = null;
-
 
     public AppAdapter(Context context, List<AppInfo> list, ArrayList<BaseFileInfo> selectList){
         super(context, list, selectList);
@@ -57,8 +54,6 @@ public class AppAdapter extends BasicAdapter {
         this.screenWidth = mContext.getResources().getDisplayMetrics().widthPixels;
         //计算各个空间的宽高
         getMeasureWidth();
-        //初始化数据
-        viewMap = new HashMap<>();
     }
 
     /**
@@ -82,7 +77,7 @@ public class AppAdapter extends BasicAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder = null;
-        if (!viewMap.containsKey(position) || viewMap.get(position) == null){
+        if (!viewCacheMap.containsKey(position) || viewCacheMap.get(position) == null){
         //if (convertView == null){
             viewHolder = new ViewHolder();
             //载入Item布局
@@ -95,9 +90,9 @@ public class AppAdapter extends BasicAdapter {
             //标签
             viewHolder.label = (TextView)convertView.findViewById(R.id.item_app_label);
             convertView.setTag(viewHolder);
-            viewMap.put(position, convertView);
+            viewCacheMap.put(position, convertView);
         }else{
-            convertView = viewMap.get(position);
+            convertView = viewCacheMap.get(position);
             viewHolder = (ViewHolder)convertView.getTag();
         }
         //设置控件的宽高
@@ -115,27 +110,12 @@ public class AppAdapter extends BasicAdapter {
             viewHolder.layout.setBackgroundColor(mContext.getResources().getColor(R.color.long_click_selected));
         }
         //清除多余的view
-        clearHashView(convertView, (GridView)parent);
+        if (viewCacheMap.size() > MAX_VIEW_SIZE){
+            clearCacheView(convertView, (GridView)parent);
+        }
         return convertView;
     }
 
-    /**
-     * 避免载入的view过多，清理在屏幕外的view
-     */
-    private void clearHashView(View convertView,GridView mGridview){
-        if(viewMap.size() > MAX_VIEW_SIZE){
-            synchronized (convertView) {
-                //删除第一个到当前行数的上一行的view
-                for(int i = 0;i < mGridview.getFirstVisiblePosition() - NUM_COLUMNS;i ++){
-                    viewMap.remove(i);
-                }
-                //删除当前屏幕最后一行的下一行到所有的最后一行的view
-                for(int i = mGridview.getLastVisiblePosition() + NUM_COLUMNS;i < getCount();i ++){
-                    viewMap.remove(i);
-                }
-            }
-        }
-    }
 
     //定义item的view集合
     private class ViewHolder{

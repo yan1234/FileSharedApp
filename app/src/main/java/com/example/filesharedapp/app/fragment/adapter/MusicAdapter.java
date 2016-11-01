@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -28,21 +29,16 @@ import java.util.List;
  */
 public class MusicAdapter extends BasicAdapter {
 
-    //定义map缓存view
-    private HashMap<Integer, View> viewMap = null;
-
 
     public MusicAdapter(Context context, List<MusicInfo> list, ArrayList<BaseFileInfo> selectList){
         super(context, list, selectList);
-        //初始化数据
-        viewMap = new HashMap<>();
     }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder = null;
         //if (convertView == null){
-        if (!viewMap.containsKey(position) || viewMap.get(position) == null){
+        if (!viewCacheMap.containsKey(position) || viewCacheMap.get(position) == null){
             viewHolder = new ViewHolder();
             //载入布局
             convertView = LayoutInflater.from(mContext)
@@ -52,9 +48,9 @@ public class MusicAdapter extends BasicAdapter {
             viewHolder.select = (CheckBox)convertView.findViewById(R.id.item_music_select);
             //添加到view中
             convertView.setTag(viewHolder);
-            viewMap.put(position, convertView);
+            viewCacheMap.put(position, convertView);
         }else{
-            convertView = viewMap.get(position);
+            convertView = viewCacheMap.get(position);
             viewHolder = (ViewHolder)convertView.getTag();
         }
         //将数据绑定到控件中
@@ -65,11 +61,11 @@ public class MusicAdapter extends BasicAdapter {
         String duration = "" + time[3]+":"+time[4]+":"+time[5];
         //将大小换算成MB
         float size = ((MusicInfo)list.get(position)).getSize() / (1024*1024);
-        viewHolder.size.setText(duration+"  " + size + "MB");
+        viewHolder.size.setText(duration + "  " + size + "MB");
         //判断该项是否已选择
         viewHolder.select.setChecked(selectList.contains(list.get(position)));
         //为radiobutton添加点击事件
-        viewHolder.select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+       viewHolder.select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
@@ -81,10 +77,13 @@ public class MusicAdapter extends BasicAdapter {
                 }
             }
         });
+        if (viewCacheMap.size() > 30){
+            clearCacheView(convertView, (ListView)parent);
+        }
         return convertView;
     }
 
-    private class ViewHolder{
+    public class ViewHolder{
         public TextView name;
         public TextView size;
         public CheckBox select;

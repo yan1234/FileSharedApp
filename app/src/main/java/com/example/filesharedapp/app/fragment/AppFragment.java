@@ -32,8 +32,7 @@ public class AppFragment extends BaseFragment implements AdapterView.OnItemLongC
 
     //定义网格列表
     private GridView appGridView;
-    //定义适配器
-    private AppAdapter adapter;
+
     //定义列表保存系统的app列表信息
     private List<AppInfo> appInfos;
 
@@ -108,7 +107,4 @@ public class AppFragment extends BaseFragment implements AdapterView.OnItemLongC
         });
     }
 
-    public AppAdapter getAdapter() {
-        return adapter;
-    }
 }

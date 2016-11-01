@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.filesharedapp.R;
@@ -22,14 +23,12 @@ import java.util.List;
  * @author yaning
  * @date 2015-10-16
  */
-public class MusicFragment extends BaseFragment {
+public class MusicFragment extends BaseFragment{
 
     //定义界面view
     private View view;
     //定义音乐列表listview
     private ListView musicList = null;
-    //定义音乐列表适配器
-    private MusicAdapter adapter = null;
     //定义音乐列表数据
     private List<MusicInfo> musics = new ArrayList<MusicInfo>();
 
@@ -64,5 +63,4 @@ public class MusicFragment extends BaseFragment {
         //绑定适配器
         musicList.setAdapter(adapter);
     }
-
 }

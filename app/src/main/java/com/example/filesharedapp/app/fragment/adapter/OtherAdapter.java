@@ -83,6 +83,8 @@ public class OtherAdapter extends BaseAdapter{
         //判断该项是文件还是目录，显示对于的图片
         if (files[position].isDirectory()){
             viewHolder.image.setImageResource(ResourceManager.getResourceId(mContext, ResourceManager.ICON_DIR));
+            //隐藏文件目录的选择框
+            viewHolder.select.setVisibility(View.INVISIBLE);
         }//显示文件图标
         else{
             //根据文件后缀显示不同文件图标
