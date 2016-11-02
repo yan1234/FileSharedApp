@@ -37,6 +37,12 @@ public abstract class BasicAdapter extends BaseAdapter{
     //定义map缓存渲染的view item
     protected HashMap<Integer, View> viewCacheMap = new HashMap<>();
 
+
+
+    public BasicAdapter(){
+
+    }
+
     /**
      * 基类构造函数
      * @param context，上下文

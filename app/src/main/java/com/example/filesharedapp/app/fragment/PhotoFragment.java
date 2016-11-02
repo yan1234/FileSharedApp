@@ -67,7 +67,7 @@ public class PhotoFragment extends BaseFragment {
         //所以一定要在获取图片后再取目录
         bucketNames = MediaManager.getInstance(this.getActivity()).getImageBucketNames();
         //初始化适配器
-        adapter = new PhotoAdapter(this.getActivity(), photos,bucketNames);
+        adapter = new PhotoAdapter(this.getActivity(), photos,bucketNames, selectList);
         //将适配器绑定到listview中
         photoList.setAdapter(adapter);
     }

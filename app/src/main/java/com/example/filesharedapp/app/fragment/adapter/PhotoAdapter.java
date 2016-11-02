@@ -15,7 +15,9 @@ import android.widget.TextView;
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.framework.cache.ImageLoaderManager;
 import com.example.filesharedapp.framework.media.MediaManager;
+import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
 import com.example.filesharedapp.framework.media.entity.PhotoInfo;
+import com.example.filesharedapp.framework.ui.base.BasicAdapter;
 import com.example.filesharedapp.framework.ui.gridview.PhotoGridView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
@@ -28,7 +30,7 @@ import java.util.List;
  * 图片列表适配器
  * Created by yanling on 2015/10/31.
  */
-public class PhotoAdapter extends BaseAdapter{
+public class PhotoAdapter extends BasicAdapter {
 
     //上下文
     private Context mContext;
@@ -36,8 +38,6 @@ public class PhotoAdapter extends BaseAdapter{
     private List<PhotoInfo> photos;
     //按目录整理图片
     private List<ListItem> listItems = new ArrayList<ListItem>();
-    //定义选择的图片列表
-    private List<PhotoInfo> selectedPhotos = new ArrayList<PhotoInfo>();
 
     /**
      *
@@ -45,9 +45,10 @@ public class PhotoAdapter extends BaseAdapter{
      * @param list， 图片详情列表
      * @param bucketNames，图片目录列表
      */
-    public PhotoAdapter(Context context, List<PhotoInfo> list, List<String> bucketNames){
+    public PhotoAdapter(Context context, List<PhotoInfo> list, List<String> bucketNames, ArrayList<BaseFileInfo> selectList){
         this.mContext = context;
         this.photos = list;
+        this.selectList = selectList;
         //根据目录名拆分图片列表
         int k=0;
         for (int i=0; i<bucketNames.size(); i++){
@@ -107,14 +108,14 @@ public class PhotoAdapter extends BaseAdapter{
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int index, long id) {
                 //判断该项是否已经包含在选中的列表中
-                if (selectedPhotos.contains(listItems.get(position).list.get(index))){
+                if (selectList.contains(listItems.get(position).list.get(index))){
                     //移除该项
-                    selectedPhotos.remove(listItems.get(position).list.get(index));
+                    selectList.remove(listItems.get(position).list.get(index));
                     //设置背景为还原
                     view.setBackgroundColor(mContext.getResources().getColor(R.color.long_click_cancel));
                 }else{
                     //添加该项
-                    selectedPhotos.add(listItems.get(position).list.get(index));
+                    selectList.add(listItems.get(position).list.get(index));
                     //设置背景
                     view.setBackgroundColor(mContext.getResources().getColor(R.color.long_click_selected));
                 }
@@ -210,7 +211,7 @@ public class PhotoAdapter extends BaseAdapter{
                         }
                     });
             //判断当前item是否被选中
-            if (selectedPhotos.contains(items.get(position))){
+            if (selectList.contains(items.get(position))){
                 //设置当前item背景
                 vHolder.layout.setBackgroundColor(mContext.getResources().getColor(R.color.long_click_selected));
             }
@@ -233,9 +234,5 @@ public class PhotoAdapter extends BaseAdapter{
         public String bucketName;
         //该目录下的图片集合
         public List<PhotoInfo> list = new ArrayList<PhotoInfo>();
-    }
-
-    public List<PhotoInfo> getSelectedPhotos() {
-        return selectedPhotos;
     }
 }

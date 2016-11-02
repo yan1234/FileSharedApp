@@ -204,27 +204,7 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
                 Intent intent = new Intent(HomeMainActivity.this, SendShowActivity.class);
                 //封装待发送的文件路径
                 Bundle bundle = new Bundle();
-                /**
-                 * 当传递APP信息时，由于实体中包含图片，所以讲图片去掉
-                 */
-                if (position == 0){
-                    ArrayList<BaseFileInfo> fileInfos = new ArrayList<>();
-                    List<BaseFileInfo> baseFileInfos = fragments.get(position).getSelectList();
-                    for(int i=0; i < baseFileInfos.size(); i++){
-                        BaseFileInfo baseFileInfo = new BaseFileInfo(
-                                baseFileInfos.get(i).getName(),
-                                baseFileInfos.get(i).getPath(),
-                                baseFileInfos.get(i).getSize(),
-                                baseFileInfos.get(i).getMd5(),
-                                baseFileInfos.get(i).getType()
-                        );
-                        fileInfos.add(baseFileInfo);
-                    }
-                    bundle.putSerializable("fileinfos", fileInfos);
-                }else{
-                    bundle.putSerializable("fileinfos", fragments.get(position).getSelectList());
-                }
-
+                bundle.putSerializable("fileinfos", fragments.get(position).getSelectList());
                 intent.putExtras(bundle);
                 startActivity(intent);
                 home_shortcut_frame.setVisibility(View.GONE);

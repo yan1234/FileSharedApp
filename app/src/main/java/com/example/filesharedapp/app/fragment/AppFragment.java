@@ -72,25 +72,36 @@ public class AppFragment extends BaseFragment implements AdapterView.OnItemLongC
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        //先判断该项是否被选中,看集合中有没有对应的position
-        if (selectList.contains(appInfos.get(position))){
-            //还原被选中的状态
-            view.setBackgroundColor(getResources().getColor(R.color.long_click_cancel));
-            //删除集合中的值
-            selectList.remove(appInfos.get(position));
-        }else{
-            /**
-             * 这里限制最多选择3项，主要是因为二位码存储的信息有限
-             * 避免选择信息过多后造成麻烦
-             */
-            if (selectList.size() >= MAX_NUMBER_SELECTED){
-                Toast.makeText(this.getActivity(), "最多只能选择3项", Toast.LENGTH_SHORT).show();
-            }else{
-                //设置被选中颜色
-                view.setBackgroundColor(getResources().getColor(R.color.long_click_selected));
-                //添加到集合
-                selectList.add(appInfos.get(position));
+        //判断集合中该项是否选中
+        for (int i = 0; i < selectList.size(); i++){
+            //表示该项存在
+            if (selectList.get(i).getPath().equals(appInfos.get(position).getPath())){
+                //还原被选中的状态
+                view.setBackgroundColor(getResources().getColor(R.color.long_click_cancel));
+                //删除集合中的值
+                selectList.remove(i);
+                return true;
             }
+        }
+
+        /**
+         * 这里限制最多选择3项，主要是因为二位码存储的信息有限
+         * 避免选择信息过多后造成麻烦
+         */
+        if (selectList.size() >= MAX_NUMBER_SELECTED){
+            Toast.makeText(this.getActivity(), "最多只能选择3项", Toast.LENGTH_SHORT).show();
+        }else{
+            //设置被选中颜色
+            view.setBackgroundColor(getResources().getColor(R.color.long_click_selected));
+            //添加到集合
+            BaseFileInfo fileInfo = new BaseFileInfo(
+                    appInfos.get(position).getName(),
+                    appInfos.get(position).getPath(),
+                    appInfos.get(position).getSize(),
+                    appInfos.get(position).getMd5(),
+                    appInfos.get(position).getType()
+            );
+            selectList.add(fileInfo);
         }
         return true;
     }

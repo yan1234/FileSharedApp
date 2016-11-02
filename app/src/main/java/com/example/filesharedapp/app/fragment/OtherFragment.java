@@ -26,7 +26,8 @@ import java.io.File;
  * @author yaning
  * @date 2015-10-16
  */
-public class OtherFragment extends BaseFragment {
+public class OtherFragment extends BaseFragment
+        implements AdapterView.OnItemClickListener, View.OnClickListener,View.OnKeyListener{
 
 
     //定义文件操作的根目录
@@ -40,10 +41,10 @@ public class OtherFragment extends BaseFragment {
     private TextView pathShowText;
     //定义文件列表布局
     private ListView otherListView;
-    //定义适配器
-    private OtherAdapter adapter;
     //定义文件数据
     private File[] files;
+    //定义当前文件列表的父文件对象(初始值为root目录)
+    private File parentFile = root;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,53 +73,21 @@ public class OtherFragment extends BaseFragment {
      */
     private void initEvent(){
         //获取根目录的文件列表(这里暂时不获取SD卡）
-        files = FileUtils.getFiles(root);
+        files = FileUtils.getFiles(parentFile);
         //对文件列表进行排序
         FileUtils.sortListFile(files);
         //初始化适配器
-        adapter = new OtherAdapter(this.getActivity(), files);
-        //设置父目录
-        adapter.setParentFile(root);
+        adapter = new OtherAdapter(this.getActivity(), files, selectList);
         //绑定适配器
         otherListView.setAdapter(adapter);
         //设置item的点击事件，如果是目录则进入下一层目录
-        otherListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //判断是否是目录
-                File file = adapter.getFiles()[position];
-                if (file.isDirectory()) {
-                    //进入下一层目录
-                    //更新适配器的数据
-                    updateView(file);
-                }
-            }
-        });
+        otherListView.setOnItemClickListener(this);
         //点击返回图标监听事件
-        backImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //调用返回事件
-                backEvent();
-            }
-        });
+        backImageView.setOnClickListener(this);
         //添加返回监听事件
         view.setFocusableInTouchMode(true);
         view.requestFocus();
-        view.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
-                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN){
-                    //判断是否是返回按钮
-                    if (keyCode == KeyEvent.KEYCODE_BACK){
-                        //调用返回事件处理
-                        backEvent();
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
+        view.setOnKeyListener(this);
     }
 
     /**
@@ -126,9 +95,9 @@ public class OtherFragment extends BaseFragment {
      */
     private void backEvent(){
         //首先判断当前目录的父目录是否已经达到根部
-        if (!root.equals(adapter.getParentFile())){
+        if (!root.equals(parentFile)){
             //获取当前父目录的父目录的文件列表
-            updateView(adapter.getParentFile().getParentFile());
+            updateView(parentFile.getParentFile());
         }else{
             Toast.makeText(this.getActivity(), "已到达根目录", Toast.LENGTH_SHORT).show();
         }
@@ -146,13 +115,47 @@ public class OtherFragment extends BaseFragment {
         //然后更新ListView文件列表
         File[] tmpFiles = FileUtils.getFiles(parent);
         FileUtils.sortListFile(tmpFiles);
-        adapter.setFiles(tmpFiles);
-        //设置当前列表的父目录
-        adapter.setParentFile(parent);
+        ((OtherAdapter)adapter).setFiles(tmpFiles);
+        //记录父目录
+        parentFile = parent;
+        files = tmpFiles;
+        //清除缓存的viewMap
+        adapter.getViewCacheMap().clear();
         adapter.notifyDataSetChanged();
     }
 
 
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        //判断是否是目录
+        File file = (File)adapterView.getItemAtPosition(position);
+        if (file.isDirectory()) {
+            //进入下一层目录
+            //更新适配器的数据
+            updateView(file);
+        }
+    }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.other_back:
+                //顶部返回按钮点击事件
+                backEvent();
+                break;
+        }
+    }
 
+    @Override
+    public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
+        if (keyEvent.getAction() == KeyEvent.ACTION_DOWN){
+            //判断是否是返回按钮
+            if (keyCode == KeyEvent.KEYCODE_BACK){
+                //调用返回事件处理
+                backEvent();
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -11,7 +11,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.filesharedapp.R;
+import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
+import com.example.filesharedapp.framework.ui.base.BasicAdapter;
 import com.example.filesharedapp.framework.ui.icon.ResourceManager;
+import com.example.filesharedapp.utils.common.FileUtils;
+import com.example.filesharedapp.utils.md5.MD5Utils;
 
 
 import java.io.File;
@@ -23,47 +27,23 @@ import java.util.List;
  * 其他fragment的适配器
  * Created by yanling on 2015/11/9.
  */
-public class OtherAdapter extends BaseAdapter{
+public class OtherAdapter extends BasicAdapter {
 
-    //定义上下文
-    private Context mContext;
     //定义文件列表
     private File[] files;
-    //通过map缓存view
-    private HashMap<Integer, View> viewMap = null;
-    //定义已选择的文件列表
-    private List<File> selectedFile = null;
-    //定义变量保存父目录
-    private File parentFile;
 
-    public OtherAdapter(Context context, File[] files){
+    public OtherAdapter(Context context, File[] files, ArrayList<BaseFileInfo> selectList){
         this.mContext = context;
         this.files = files;
-        //初始化数据
-        viewMap = new HashMap<>();
-        selectedFile = new ArrayList<>();
+        this.selectList = selectList;
     }
 
-    @Override
-    public int getCount() {
-        return files==null ? 0:files.length;
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return files==null ? null:files[position];
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder = null;
         //if (convertView == null){
-        if (!viewMap.containsKey(position) || viewMap.get(position) == null){
+        if (!viewCacheMap.containsKey(position) || viewCacheMap.get(position) == null){
             viewHolder = new ViewHolder();
             //载入布局
             convertView = LayoutInflater.from(mContext)
@@ -72,9 +52,9 @@ public class OtherAdapter extends BaseAdapter{
             viewHolder.name = (TextView)convertView.findViewById(R.id.item_other_name);
             viewHolder.select = (CheckBox)convertView.findViewById(R.id.item_other_select);
             convertView.setTag(viewHolder);
-            viewMap.put(position, convertView);
+            viewCacheMap.put(position, convertView);
         }else{
-            convertView = viewMap.get(position);
+            convertView = viewCacheMap.get(position);
             viewHolder = (ViewHolder)convertView.getTag();
         }
         /**
@@ -93,20 +73,43 @@ public class OtherAdapter extends BaseAdapter{
         //显示文件名
         viewHolder.name.setText(files[position].getName());
         //设置选择事件
-        viewHolder.select.setChecked(selectedFile.contains(files[position]));
+        //viewHolder.select.setChecked(selectedFile.contains(files[position]));
         viewHolder.select.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
                     //添加到选择列表中
-                    selectedFile.add(files[position]);
+                    BaseFileInfo fileInfo = new BaseFileInfo(
+                            files[position].getName(),
+                            files[position].getPath(),
+                            files[position].length(),
+                            MD5Utils.getFileMD5(files[position]),
+                            BaseFileInfo.TYPE_OTHER
+                    );
+                    selectList.add(fileInfo);
                 }else{
                     //从选择列表中移除
-                    selectedFile.remove(files[position]);
+                    for (int i = 0; i < selectList.size(); i++){
+                        if (selectList.get(i).getPath().equals(files[position].getPath())){
+                            //判断路径是否一致，一致表示是同一个文件
+                            selectList.remove(i);
+                            break;
+                        }
+                    }
                 }
             }
         });
         return convertView;
+    }
+
+    @Override
+    public int getCount() {
+        return files == null ? 0:files.length;
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return files == null ? null:files[position];
     }
 
     private class ViewHolder{
@@ -115,27 +118,7 @@ public class OtherAdapter extends BaseAdapter{
         public CheckBox select;
     }
 
-    public List<File> getSelectedFile() {
-        return selectedFile;
-    }
-
-    public void setSelectedFile(List<File> selectedFile) {
-        this.selectedFile = selectedFile;
-    }
-
-    public File[] getFiles() {
-        return files;
-    }
-
     public void setFiles(File[] files) {
         this.files = files;
-    }
-
-    public File getParentFile() {
-        return parentFile;
-    }
-
-    public void setParentFile(File parentFile) {
-        this.parentFile = parentFile;
     }
 }
