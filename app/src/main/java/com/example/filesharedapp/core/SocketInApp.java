@@ -83,13 +83,13 @@ public class SocketInApp {
             OutputStream out = socket.getOutputStream();
             //定义已下载文件数量
             int filecount = 0;
-            while (filecount <= qrcodeInfo.getFiles().size()){
+            while (filecount < qrcodeInfo.getFiles().size()){
                 //没有读取就接着读
                 //首先读取32个字节数据
                 byte[] buffer = new byte[1024];
                 in.read(buffer, 0, 32);
                 //获取读到的md5值
-                String md5 = new String(buffer);
+                String md5 = new String(buffer).substring(0, 32);
                 BaseFileInfo baseFileInfo = map.get(md5);
                 //将数据流输出到文件
                 FileOutputStream fos = new FileOutputStream(
@@ -98,21 +98,22 @@ public class SocketInApp {
                 int downloadSize = 0;
                 int length = 0;
                 //遍历文件长度下载
-                while (downloadSize <= baseFileInfo.getSize()){
+                while (downloadSize < baseFileInfo.getSize()){
                     //判断未传输的长度是否超过了buffer缓冲区长度
                     if (baseFileInfo.getSize() - downloadSize <= 1024){
                         //直接读取剩余的长度
                         length = in.read(buffer, 0, (int)(baseFileInfo.getSize() - downloadSize));
-                        fos.write(buffer, 0, length);
                     }else{
                         //按照默认的缓冲区大小读取
                         length = in.read(buffer);
-                        fos.write(buffer, 0, length);
                     }
+                    fos.write(buffer, 0, length);
+                    downloadSize += length;
                 }
                 //读取完毕后关闭文件输入流
                 fos.flush();
                 fos.close();
+                filecount ++;
             }
             //所有的文件读取完毕则关闭输入流
             out.close();

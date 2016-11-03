@@ -13,8 +13,11 @@ import com.example.filesharedapp.app.transfers.entity.QrcodeInfo;
 import com.example.filesharedapp.core.SocketInApp;
 import com.example.filesharedapp.framework.ui.base.BaseActivity;
 import com.example.filesharedapp.utils.json.JsonUtil;
+import com.example.filesharedapp.utils.md5.MD5Utils;
 import com.example.scanlibrary.ScanUtils;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -50,6 +53,13 @@ public class SendShowActivity extends BaseActivity {
                 startSend();
             }
         });
+        ((Button)findViewById(R.id.accept)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((Button)findViewById(R.id.accept)).setText("关闭接收");
+                startAccept();
+            }
+        });
     }
 
     /**
@@ -80,28 +90,31 @@ public class SendShowActivity extends BaseActivity {
      * @return
      */
     private String packageSendInfo(){
-
-        /*fileInfoList = new ArrayList<>();
-        FileInfo  fileInfo = new FileInfo();
-        File file  = new File(Environment.getExternalStorageDirectory() + File.separator + "test.apk");
-        fileInfo.setFileName(file.getName());
-        fileInfo.setPath(file.getPath());
-        fileInfo.setType(1);   //app
-        fileInfo.setSize(file.length());
-        fileInfo.setMd5(MD5Utils.getFileMD5(file));
-        fileInfoList.add(fileInfo);*/
-
-
         qrcodeInfo = new QrcodeInfo();
         //随机生成端口号(50000-59999之间)
         qrcodeInfo.setHostPort(50000 + new Random().nextInt(10000));
-        qrcodeInfo.setFiles(baseFileInfoList);
+        List<BaseFileInfo> list = new ArrayList<>();
+        //将缺失的信息补全
+        for (int i = 0; i < baseFileInfoList.size(); i++){
+            BaseFileInfo fileInfo = new BaseFileInfo();
+            //如果传输的是app
+            if (baseFileInfoList.get(i).getType() == BaseFileInfo.TYPE_APP){
+                fileInfo.setName(baseFileInfoList.get(i).getName() + ".apk");
+            }else{
+                fileInfo.setName(baseFileInfoList.get(i).getName());
+            }
+            fileInfo.setPath(baseFileInfoList.get(i).getPath());
+            fileInfo.setSize(new File(fileInfo.getPath()).length());
+            fileInfo.setMd5(MD5Utils.getFileMD5(new File(fileInfo.getPath())));
+            fileInfo.setType(baseFileInfoList.get(i).getType());
+            list.add(fileInfo);
+        }
+        qrcodeInfo.setFiles(list);
         //将封装的信息转化为json字符串
         return JsonUtil.objToJson(qrcodeInfo);
     }
 
     private void startSend(){
-        Log.d("haha", "端口号为：" + qrcodeInfo.getHostPort());
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -109,5 +122,14 @@ public class SendShowActivity extends BaseActivity {
             }
         }).start();
 
+    }
+
+    private void startAccept(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SocketInApp.startClientSocket("127.0.0.1", qrcodeInfo);
+            }
+        }).start();
     }
 }
