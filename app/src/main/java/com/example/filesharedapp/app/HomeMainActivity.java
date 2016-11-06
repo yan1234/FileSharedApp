@@ -296,7 +296,7 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
                 //传递信息到文件发送页面
                 Intent intent = new Intent(HomeMainActivity.this, TransferShowActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("QrcodeInfo", qrcodeInfo);
+                bundle.putSerializable("fileinfos", qrcodeInfo);
                 intent.putExtras(bundle);
                 //跳转到传输界面
                 startActivity(intent);

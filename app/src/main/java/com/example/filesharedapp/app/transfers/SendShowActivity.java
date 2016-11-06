@@ -6,12 +6,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
 import com.example.filesharedapp.app.transfers.entity.QrcodeInfo;
 import com.example.filesharedapp.core.SocketInApp;
 import com.example.filesharedapp.framework.ui.base.BaseActivity;
+import com.example.filesharedapp.framework.wifi.WifiController;
 import com.example.filesharedapp.utils.json.JsonUtil;
 import com.example.filesharedapp.utils.md5.MD5Utils;
 import com.example.scanlibrary.ScanUtils;
@@ -22,6 +24,9 @@ import java.util.List;
 import java.util.Random;
 
 public class SendShowActivity extends BaseActivity {
+
+    //定义常量标志wifi名称
+    private static final String WIFI_NAME = "FileShare";
 
     //二维码图片
     private ImageView image_qrcode;
@@ -76,12 +81,27 @@ public class SendShowActivity extends BaseActivity {
      * 初始化事件
      */
     private void initEvent(){
-        //生成二维码并展示
-        String content = packageSendInfo();
-        image_qrcode.setImageBitmap(ScanUtils.encodeQRCode(content,
-                250, 250));
-        text_tip.setText("文件：" + content);
-
+        //初始化socket 端口号
+        qrcodeInfo = new QrcodeInfo();
+        //随机生成端口号(50000-59999之间)
+        qrcodeInfo.setHostPort(50000 + new Random().nextInt(10000));
+        //开启wifi
+        //随机生成wifi名称和密码
+        String ssid = WIFI_NAME + new Random().nextInt(100);
+        String password = ssid;
+        qrcodeInfo.setSsid(ssid);
+        qrcodeInfo.setPreSharedKey(password);
+        WifiController wifiController = new WifiController(SendShowActivity.this);
+        if (wifiController.startWifiAp(ssid, password, true)){
+            //wifi开启成功
+            //生成二维码并展示
+            String content = packageSendInfo();
+            image_qrcode.setImageBitmap(ScanUtils.encodeQRCode(content,
+                    250, 250));
+            text_tip.setText("文件：" + content);
+        }else{
+            Toast.makeText(SendShowActivity.this, "无线共享开启失败", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -90,9 +110,7 @@ public class SendShowActivity extends BaseActivity {
      * @return
      */
     private String packageSendInfo(){
-        qrcodeInfo = new QrcodeInfo();
-        //随机生成端口号(50000-59999之间)
-        qrcodeInfo.setHostPort(50000 + new Random().nextInt(10000));
+
         List<BaseFileInfo> list = new ArrayList<>();
         //将缺失的信息补全
         for (int i = 0; i < baseFileInfoList.size(); i++){
