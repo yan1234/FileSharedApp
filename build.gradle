@@ -2,6 +2,9 @@
 
 buildscript {
     repositories {
+        maven {
+            url "https://raw.githubusercontent.com/yan1234/maven-repo/master/repository"
+        }
         jcenter()
     }
     dependencies {
@@ -13,6 +16,9 @@ buildscript {
 
 allprojects {
     repositories {
+        maven {
+            url "https://raw.githubusercontent.com/yan1234/maven-repo/master/repository"
+        }
         jcenter()
     }
 }

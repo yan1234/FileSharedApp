@@ -37,7 +37,21 @@ public class WifiController {
      * @param preSharedKey，wifi密码
      */
     public void connectWifi(String ssid, String preSharedKey){
-        //得到扫描wifi列表
+
+        //开启wifi
+        setWifiStatus(true);
+        ////开启wifi功能需要一段时间(我在手机上测试一般需要1-3秒左右)，所以要等到wifi
+        //状态变成WifiManager.WIFI_STATE_ENABLED的时候才能执行下面的语句
+        while (!(wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED)){
+            try{
+                //休眠100毫秒检测一次
+                Thread.currentThread();
+                Thread.sleep(100);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        //开始扫描wifi列表
         List<ScanResult> wifiList = wifiManager.getScanResults();
         //遍历所有的wifi
         for (ScanResult result : wifiList){
@@ -48,6 +62,9 @@ public class WifiController {
                 //将设置添加到网络
                 int wifiID = wifiManager.addNetwork(wifiConfig);
                 boolean flag = wifiManager.enableNetwork(wifiID, true);
+                if (flag){
+                    wifiManager.saveConfiguration();
+                }
                 break;
             }
         }
@@ -121,6 +138,7 @@ public class WifiController {
         wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
         wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
         wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+        wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
 
         return wifiConfig;
     }
@@ -156,8 +174,14 @@ public class WifiController {
      * @param flag，true：开启wifi连接，false:关闭wifi连接
      */
     public void setWifiStatus(boolean flag){
-        //设置wifi连接状态
-        wifiManager.setWifiEnabled(flag);
+        //当前wifi为连接，并且需要开启wifi时
+        if (flag && !isWifiConnected()){
+            wifiManager.setWifiEnabled(true);
+        }
+        //当前wifi已连接，并且需要关闭wifi时
+        if (!flag && isWifiConnected()){
+            wifiManager.setWifiEnabled(false);
+        }
     }
 
     /**
