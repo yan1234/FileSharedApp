@@ -1,6 +1,9 @@
 package com.example.filesharedapp.app.transfers;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,7 +12,10 @@ import android.widget.EditText;
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.transfers.entity.QrcodeInfo;
 import com.example.filesharedapp.core.SocketInApp;
+import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
+import com.example.filesharedapp.framework.ui.icon.ResourceManager;
 import com.example.filesharedapp.framework.wifi.WifiController;
+import com.yanling.android.view.progress.NoticeProgressManager;
 
 /**
  * 文件传输显示列表，主要是显示各个文件上传的一个进度
@@ -83,7 +89,7 @@ public class TransferShowActivity extends Activity {
             public void run() {
                 wifiController.connectWifi(qrcodeInfo.getSsid(), qrcodeInfo.getPreSharedKey());
                 //获取ip地址(xxx.xxx.xxx.xxx)
-                while (!wifiController.isWifiConnected()){
+                while (!(wifiController.wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED)){
                     try{
                         //100毫秒休眠一次
                         Thread.currentThread();
@@ -96,10 +102,39 @@ public class TransferShowActivity extends Activity {
                 //得到服务端的ip地址(xxx.xxx.xxx.1)
                 String remoteIp = ipAddress.substring(0, ipAddress.lastIndexOf(".")) + ".1";
                 //开启socket连接
-                SocketInApp.startClientSocket(remoteIp, qrcodeInfo);
+                SocketInApp.startClientSocket(remoteIp, qrcodeInfo, callback);
             }
         }).start();
     }
+
+    private NoticeProgressManager mNoticeProgressManager;
+
+    private SocketInApp.Callback callback = new SocketInApp.Callback() {
+        @Override
+        public void start(String path) {
+            for (BaseFileInfo baseFileInfo : qrcodeInfo.getFiles()){
+                if (path.equals(baseFileInfo.getPath())){
+                    Bitmap icon = BitmapFactory.decodeResource(getResources(),
+                            ResourceManager.getIconType(TransferShowActivity.this, baseFileInfo.getName()));
+                    mNoticeProgressManager = NoticeProgressManager.getInstance(TransferShowActivity.this, icon, "文件共享助手");
+                }
+            }
+        }
+
+        @Override
+        public void setProgress(long totalSize, long downloadSize, float speed) {
+
+            mNoticeProgressManager.setProgress((int)(downloadSize/totalSize * 100),
+                    speed+"M/s",
+                    (int)(downloadSize/1024/1024),
+                    (int)(totalSize/1024/1024));
+        }
+
+        @Override
+        public void complete(String path) {
+            mNoticeProgressManager.clearNotify(NoticeProgressManager.NOTICE_ID);
+        }
+    };
 
 
 }

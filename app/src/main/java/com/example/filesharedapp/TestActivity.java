@@ -20,7 +20,7 @@ import com.example.filesharedapp.app.transfers.SendShowActivity;
 import com.example.filesharedapp.framework.media.MediaManager;
 import com.example.filesharedapp.framework.wifi.WifiController;
 import com.example.filesharedapp.utils.systemutils.AppUtils;
-import com.example.scanlibrary.ScanCameraActivity;
+import com.yanling.android.scanlibrary.ScanCameraActivity;
 
 import java.io.BufferedWriter;
 import java.io.File;

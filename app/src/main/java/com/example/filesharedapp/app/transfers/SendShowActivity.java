@@ -16,7 +16,7 @@ import com.example.filesharedapp.framework.ui.base.BaseActivity;
 import com.example.filesharedapp.framework.wifi.WifiController;
 import com.example.filesharedapp.utils.json.JsonUtil;
 import com.example.filesharedapp.utils.md5.MD5Utils;
-import com.example.scanlibrary.ScanUtils;
+import com.yanling.android.scanlibrary.ScanUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -146,7 +146,7 @@ public class SendShowActivity extends BaseActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SocketInApp.startClientSocket("127.0.0.1", qrcodeInfo);
+                SocketInApp.startClientSocket("127.0.0.1", qrcodeInfo, null);
             }
         }).start();
     }

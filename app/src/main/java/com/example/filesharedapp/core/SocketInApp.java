@@ -22,6 +22,9 @@ import java.util.HashMap;
  */
 public class SocketInApp {
 
+    //定义缓冲区大小常量
+    private static final int BUFFER_LENGTH = 1024 * 10;
+
 
     /**
      * 开启socket 服务端
@@ -46,7 +49,7 @@ public class SocketInApp {
                 out.write(baseFileInfo.getMd5().getBytes(Charset.forName("utf-8")));
                 FileInputStream fis = new FileInputStream(new File(baseFileInfo.getPath()));
                 int length = 0;
-                byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[BUFFER_LENGTH];
                 //读取文件流
                 while ((length = fis.read(buffer)) != -1){
                     out.write(buffer, 0, length);
@@ -71,7 +74,7 @@ public class SocketInApp {
      * @param ip，服务端的ip地址
      * @param qrcodeInfo，待接收的信息
      */
-    public static void startClientSocket(final String ip, final QrcodeInfo qrcodeInfo){
+    public static void startClientSocket(final String ip, final QrcodeInfo qrcodeInfo, Callback callback){
         try {
             //将文件列表存储在hashmap中便于查找
             HashMap<String, BaseFileInfo> map = new HashMap<String, BaseFileInfo>();
@@ -86,7 +89,7 @@ public class SocketInApp {
             while (filecount < qrcodeInfo.getFiles().size()){
                 //没有读取就接着读
                 //首先读取32个字节数据
-                byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[BUFFER_LENGTH];
                 in.read(buffer, 0, 32);
                 //获取读到的md5值
                 String md5 = new String(buffer).substring(0, 32);
@@ -97,10 +100,13 @@ public class SocketInApp {
                 //定义下载的长度
                 int downloadSize = 0;
                 int length = 0;
+                //开始下载
+                callback.start(baseFileInfo.getPath());
                 //遍历文件长度下载
                 while (downloadSize < baseFileInfo.getSize()){
+                    long startTime = System.currentTimeMillis();
                     //判断未传输的长度是否超过了buffer缓冲区长度
-                    if (baseFileInfo.getSize() - downloadSize <= 1024){
+                    if (baseFileInfo.getSize() - downloadSize <= BUFFER_LENGTH){
                         //直接读取剩余的长度
                         length = in.read(buffer, 0, (int)(baseFileInfo.getSize() - downloadSize));
                     }else{
@@ -109,11 +115,15 @@ public class SocketInApp {
                     }
                     fos.write(buffer, 0, length);
                     downloadSize += length;
+                    float speed = length /(System.currentTimeMillis() - startTime + 1) / 1024;
+                    //设置进度值
+                    callback.setProgress(baseFileInfo.getSize(), downloadSize,speed);
                 }
                 //读取完毕后关闭文件输入流
                 fos.flush();
                 fos.close();
                 filecount ++;
+                callback.complete(baseFileInfo.getPath());
             }
             //所有的文件读取完毕则关闭输入流
             out.close();
@@ -125,6 +135,13 @@ public class SocketInApp {
         }
     }
 
+    public interface Callback{
 
+        public void start(String path);
+
+        public void setProgress(long totalSize, long downloadSize, float speed);
+
+        public void complete(String path);
+    }
 
 }

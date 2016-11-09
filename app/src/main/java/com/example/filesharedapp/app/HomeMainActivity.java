@@ -28,7 +28,7 @@ import com.example.filesharedapp.framework.media.entity.AppInfo;
 import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
 import com.example.filesharedapp.framework.ui.base.BaseFragment;
 import com.example.filesharedapp.utils.json.JsonUtil;
-import com.example.scanlibrary.ScanCameraActivity;
+import com.yanling.android.scanlibrary.ScanCameraActivity;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
