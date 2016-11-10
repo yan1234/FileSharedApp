@@ -2,6 +2,11 @@
 
 buildscript {
     repositories {
+        mavenLocal()
+        //阿里镜像库
+        maven {
+            url "http://maven.aliyun.com/nexus/content/groups/public/"
+        }
         maven {
             url "https://raw.githubusercontent.com/yan1234/maven-repo/master/repository"
         }
@@ -16,6 +21,11 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenLocal()
+        //阿里镜像库
+        maven {
+            url "http://maven.aliyun.com/nexus/content/groups/public/"
+        }
         maven {
             url "https://raw.githubusercontent.com/yan1234/maven-repo/master/repository"
         }
