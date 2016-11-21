@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.transfers.entity.QrcodeInfo;
@@ -24,13 +25,16 @@ import com.yanling.android.view.progress.NoticeProgressManager;
  */
 public class TransferShowActivity extends Activity {
 
+
+    //定义进度列表listview
+    private ListView lv_progress;
+
     //定义条码实体信息对象
     private QrcodeInfo qrcodeInfo = null;
 
     //定义wifi控制对象
     private WifiController wifiController = null;
 
-    public boolean isOpenWifi = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,37 +44,14 @@ public class TransferShowActivity extends Activity {
         qrcodeInfo = (QrcodeInfo)getIntent().getExtras().getSerializable("fileinfos");
         initView();
         initEvent();
-        //test();
     }
-
-    private void test(){
-        ((Button)findViewById(R.id.btn_test)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (isOpenWifi){
-                    wifiController.setWifiStatus(false);
-                    ((Button)view).setText("开启wifi");
-                }else{
-                    wifiController.setWifiStatus(true);
-                    String ssid = ((EditText)findViewById(R.id.ssid)).getText().toString();
-                    String pwd = ((EditText)findViewById(R.id.pwd)).getText().toString();
-                    wifiController.connectWifi(ssid, pwd);
-                    ((Button)view).setText("关闭wifi");
-                }
-
-
-            }
-        });
-    }
-
 
 
     /**
      * 初始化界面
      */
     private void initView(){
-
+        lv_progress = (ListView)this.findViewById(R.id.activity_transfer_show_list);
     }
 
     /**
@@ -102,39 +83,10 @@ public class TransferShowActivity extends Activity {
                 //得到服务端的ip地址(xxx.xxx.xxx.1)
                 String remoteIp = ipAddress.substring(0, ipAddress.lastIndexOf(".")) + ".1";
                 //开启socket连接
-                SocketInApp.startClientSocket(remoteIp, qrcodeInfo, callback);
+                SocketInApp.startClientSocket(remoteIp, qrcodeInfo, null);
             }
         }).start();
     }
-
-    private NoticeProgressManager mNoticeProgressManager;
-
-    private SocketInApp.Callback callback = new SocketInApp.Callback() {
-        @Override
-        public void start(String path) {
-            for (BaseFileInfo baseFileInfo : qrcodeInfo.getFiles()){
-                if (path.equals(baseFileInfo.getPath())){
-                    Bitmap icon = BitmapFactory.decodeResource(getResources(),
-                            ResourceManager.getIconType(TransferShowActivity.this, baseFileInfo.getName()));
-                    mNoticeProgressManager = NoticeProgressManager.getInstance(TransferShowActivity.this, icon, "文件共享助手");
-                }
-            }
-        }
-
-        @Override
-        public void setProgress(long totalSize, long downloadSize, float speed) {
-
-            mNoticeProgressManager.setProgress((int)(downloadSize/totalSize * 100),
-                    speed+"M/s",
-                    (int)(downloadSize/1024/1024),
-                    (int)(totalSize/1024/1024));
-        }
-
-        @Override
-        public void complete(String path) {
-            mNoticeProgressManager.clearNotify(NoticeProgressManager.NOTICE_ID);
-        }
-    };
 
 
 }

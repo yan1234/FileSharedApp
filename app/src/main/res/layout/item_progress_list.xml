@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="75dp"
+    android:orientation="horizontal"
+    android:paddingLeft="5dp"
+    android:paddingRight="8dp">
+
+    <!-- 左边图标 -->
+    <ImageView
+        android:id="@+id/item_progress_list_icon"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:padding="5dp"/>
+
+    <!-- 标题和进度条 -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="4"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/item_progress_list_title"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="标题"/>
+
+        <com.yanling.android.view.progress.NumberProgressView
+            android:id="@+id/item_progress_list_progress"
+            style="@style/NumberProgressBar_Default"
+            android:layout_weight="1.5"
+            android:layout_width="match_parent"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>
