@@ -23,7 +23,9 @@ public class SimpleSocketHandler extends BaseSocketHandler{
     //0: 只输入不输出；1:不输入只输出；2：既输入又输出
     public static final int FLAG_HANDLER_IN = 0;
     public static final int FLAG_HANDLER_OUT = 1;
-    public static final int FLAG_HANDLER_INOUT= 2;
+    public static final int FLAG_HANDLER_INOUT = 2;
+
+    public static String rootDir = "C:\\";
 
     //定义缓冲区大小
     private static final int BUFFER_SIZE = 5 * 1024;
@@ -47,18 +49,23 @@ public class SimpleSocketHandler extends BaseSocketHandler{
     public void handlerInput() throws IOException{
         //根据标志处理输入流
         if (flag == FLAG_HANDLER_IN || flag == FLAG_HANDLER_INOUT){
-            while (in.read() != -1){
+            //read()默认会读取一个字节
+            int c = 0;
+            while ((c = in.read()) != -1){
                 //首先读取前面的1024个字节
                 byte[] b = new byte[1024];
-                in.read(b, 0, 1024);
-                String strTmp = new String(b, Charset.forName("UTF-8"));
+                in.read(b, 1, 1023);
+                b[0] = (byte)c;
+                //这里将空白的字节去掉
+                byte[] availabByte = Utils.getAvailabByte(b);
+                String strTmp = new String(availabByte, Charset.forName("UTF-8"));
                 String[] tmp = strTmp.split(";");
                 //解析出文件名，长度和md5值
                 String fileName = tmp[0].split("=")[1];
                 Long fileLength = Long.valueOf(tmp[1].split("=")[1]);
                 String md5 = tmp[2].split("=")[1];
                 //根据文件长度继续读取文件实体信息
-                FileOutputStream fos = new FileOutputStream(fileName);
+                FileOutputStream fos = new FileOutputStream(rootDir+fileName);
                 byte[] buffer = new byte[BUFFER_SIZE];
                 int count = 0;
                 int readLength = 0;
@@ -71,7 +78,9 @@ public class SimpleSocketHandler extends BaseSocketHandler{
                         //表示剩下的长度在缓存区大小之外，则正常读取
                         count = in.read(buffer);
                     }
-                    fos.write(b, 0, count);
+                    fos.write(buffer, 0, count);
+                    fos.flush();
+                    fos.close();
                     readLength += count;
                 }
             }
@@ -84,7 +93,7 @@ public class SimpleSocketHandler extends BaseSocketHandler{
         if (flag == FLAG_HANDLER_OUT || flag == FLAG_HANDLER_INOUT){
             for (File file : files){
                 //首先写入文件相关信息
-                String md5 = "";
+                String md5 = Utils.getFileMD5(file);
                 String tmp = "filename="+file.getName()
                         + ";content-length=" + file.length()
                         + ";md5=" + md5;
@@ -92,7 +101,8 @@ public class SimpleSocketHandler extends BaseSocketHandler{
                 byte[] b = tmp.getBytes(Charset.forName("UTF-8"));
                 out.write(b);
                 //然后补齐至1024个字节
-                out.write(new byte[1024-b.length]);
+                byte[] blank = new byte[1024-b.length];
+                out.write(blank);
                 //写入文件的实体
                 FileInputStream fis = new FileInputStream(file);
                 byte[] buffer = new byte[BUFFER_SIZE];
@@ -107,6 +117,8 @@ public class SimpleSocketHandler extends BaseSocketHandler{
             out.close();
         }
     }
+
+
 
     public File[] getFiles() {
         return files;

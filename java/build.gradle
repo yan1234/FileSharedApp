@@ -1,7 +1,14 @@
 apply plugin: 'java'
 
 dependencies {
+    //单元测试
+    testCompile 'junit:junit:4.12'
 }
+
+//指定编码环境
+sourceCompatibility=1.7
+//指定编译环境
+targetCompatibility =1.7
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
