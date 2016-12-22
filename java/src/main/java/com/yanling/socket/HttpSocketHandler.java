@@ -34,6 +34,9 @@ public class HttpSocketHandler extends BaseSocketHandler{
     //定义变量保存当前请求待处理的操作，主要分为上面三种：下载、页面展示、上传。
     private String outputPage;
 
+    //定义变量保存是否是文件下载
+    private boolean isDownload = false;
+
     //定义上传文件名
     private String fileName;
     //定义上传文件的长度
@@ -42,8 +45,8 @@ public class HttpSocketHandler extends BaseSocketHandler{
     private long content_length;
 
 
-    public HttpSocketHandler(String tag, Socket socket) throws IOException {
-        super(tag, socket);
+    public HttpSocketHandler(String tag, Socket socket, SocketCallback cb) throws IOException {
+        super(tag, socket, cb);
     }
 
     @Override
@@ -102,6 +105,8 @@ public class HttpSocketHandler extends BaseSocketHandler{
         body_other_count += "\r\n".length() + "--".length() * 2 + boundary.length() + "\r\n".length();
         //获取上传文件的实际长度
         fileSize = content_length -  body_other_count;
+        //开始进行上传监控操作
+        callback.start(fileName, fileSize, true);
         //下面开始就是完整的文件数据了
         File file = new File(fileName);
         FileOutputStream fos = new FileOutputStream(file);
@@ -126,6 +131,7 @@ public class HttpSocketHandler extends BaseSocketHandler{
                 if (count > fileSize - total_count){
                     //如果剩下的数据包含在当前数据中，直接把剩下读完就ok了
                     fos.write(bb.array(), 0, (int)(fileSize - total_count));
+                    total_count += count;
                     //结束
                     break;
                 }else{
@@ -134,10 +140,14 @@ public class HttpSocketHandler extends BaseSocketHandler{
                     total_count += count;
                 }
             }
+            //进度回调
+            callback.handlerProgress(fileName, fileSize, total_count, true);
 
         }
         fos.flush();
         fos.close();
+        //结束
+        callback.end(fileName, true);
 
     }
 
@@ -169,17 +179,32 @@ public class HttpSocketHandler extends BaseSocketHandler{
      */
     private void download(String filePath) throws IOException{
         try {
-            //得到上传页面文件
+            //得到待下载的文件（包括html页面展示）
+            File file = new File(filePath);
+            //判断是否是文件下载
+            if (isDownload){
+                //开始输出
+                callback.start(file.getName(), file.length(), false);
+            }
             FileInputStream fis = new FileInputStream(new File(filePath));
             byte[] buffer = new byte[BUFFER_SIZE];
             int count = 0;
+            //定义已经传输的长度
+            long transLength = 0;
             while ((count=fis.read(buffer)) != -1){
                 out.write(buffer, 0, count);
+                if (isDownload){
+                    transLength += count;
+                    //回调进度值
+                    callback.handlerProgress(file.getName(), file.length(), transLength, false);
+                }
             }
             //关闭输入输出流
             fis.close();
             out.flush();
             out.close();
+            //结束
+            callback.end(file.getName(), false);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -193,15 +218,16 @@ public class HttpSocketHandler extends BaseSocketHandler{
      */
     private boolean parseRequestStartLine(String line){
         //表示下载操作
-        if (DOWNLOAD.equals(line)){
-            outputPage = "downloadFilePath";
+        if (line.contains(DOWNLOAD)){
+            outputPage = "C:\\zzz\\test.zip";
+            isDownload = true;
             return true;
         }//表示上传页面请求
-        else if (UPLOAD_PAGE.equals(line)){
-            outputPage = "uploadPageFileName";
+        else if (line.contains(UPLOAD_PAGE)){
+            outputPage = "C:\\zzz\\upload.html";
             return true;
         }//表示上传数据操作请求
-        else if (UPLOAD_ACTION.equals(line)){
+        else if (line.contains(UPLOAD_ACTION)){
             outputPage = "successPageFileName";
             return false;
         }else{

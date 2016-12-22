@@ -18,13 +18,16 @@ public abstract class BaseSocketHandler implements Runnable{
     //定义输入输出流
     public InputStream in;
     public OutputStream out;
+    //定义操作回调
+    public SocketCallback callback;
 
-    public BaseSocketHandler(String tag, Socket socket) throws IOException{
+    public BaseSocketHandler(String tag, Socket socket, SocketCallback cb) throws IOException{
         this.tag = tag;
         this.socket = socket;
         //得到输入输出流
         this.in = this.socket.getInputStream();
         this.out = this.socket.getOutputStream();
+        this.callback = cb;
     }
 
     @Override

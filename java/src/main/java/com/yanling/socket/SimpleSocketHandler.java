@@ -36,12 +36,9 @@ public class SimpleSocketHandler extends BaseSocketHandler{
     //定义要传输的文件列表
     private File[] files;
 
-    public SimpleSocketHandler(String tag, Socket socket) throws IOException{
-        super(tag, socket);
-    }
 
-    public SimpleSocketHandler(String tag, Socket socket, int flag) throws IOException{
-        super(tag, socket);
+    public SimpleSocketHandler(String tag, Socket socket, SocketCallback cb, int flag) throws IOException{
+        super(tag, socket, cb);
         this.flag = flag;
     }
 
@@ -62,13 +59,15 @@ public class SimpleSocketHandler extends BaseSocketHandler{
                 String[] tmp = strTmp.split(";");
                 //解析出文件名，长度和md5值
                 String fileName = tmp[0].split("=")[1];
-                Long fileLength = Long.valueOf(tmp[1].split("=")[1]);
+                long fileLength = Long.valueOf(tmp[1].split("=")[1]);
                 String md5 = tmp[2].split("=")[1];
+                //开始接收回调
+                callback.start(fileName, fileLength, true);
                 //根据文件长度继续读取文件实体信息
                 FileOutputStream fos = new FileOutputStream(rootDir+fileName);
                 byte[] buffer = new byte[BUFFER_SIZE];
                 int count = 0;
-                int readLength = 0;
+                long readLength = 0;
                 //循环读取完所有的文件长度
                 while (readLength < fileLength){
                     //如果剩下的长度在缓存区之内，则一次性读完
@@ -82,7 +81,11 @@ public class SimpleSocketHandler extends BaseSocketHandler{
                     fos.flush();
                     fos.close();
                     readLength += count;
+                    //处理进度值
+                    callback.handlerProgress(fileName, fileLength, readLength, true);
                 }
+                //文件下载结束
+                callback.end(fileName, true);
             }
         }
     }
@@ -93,6 +96,8 @@ public class SimpleSocketHandler extends BaseSocketHandler{
         if (flag == FLAG_HANDLER_OUT || flag == FLAG_HANDLER_INOUT){
             for (File file : files){
                 //首先写入文件相关信息
+                //开始回调
+                callback.start(file.getName(), file.length(), false);
                 String md5 = Utils.getFileMD5(file);
                 String tmp = "filename="+file.getName()
                         + ";content-length=" + file.length()
@@ -107,11 +112,18 @@ public class SimpleSocketHandler extends BaseSocketHandler{
                 FileInputStream fis = new FileInputStream(file);
                 byte[] buffer = new byte[BUFFER_SIZE];
                 int count = 0;
+                //定义变量保存已经传输的长度
+                long transLength = 0;
                 while ((count = fis.read(buffer)) != -1){
                     out.write(buffer, 0, count);
+                    //将进度值通过回调返回
+                    transLength += count;
+                    callback.handlerProgress(file.getName(), file.length(), transLength, false);
                 }
                 //关闭文件输入流
                 fis.close();
+                //结束回调
+                callback.end(file.getName(), false);
             }
             out.flush();
             out.close();
