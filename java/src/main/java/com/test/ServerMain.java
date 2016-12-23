@@ -3,6 +3,7 @@ package com.test;
 import com.yanling.socket.HttpSocketHandler;
 import com.yanling.socket.SimpleSocketHandler;
 import com.yanling.socket.SocketCallback;
+import com.yanling.socket.SocketManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,11 +34,38 @@ public class ServerMain {
 
             //socket服务端实现http协议测试
             ServerSocket server = new ServerSocket(9999);
-            Socket socket = server.accept();
+            /*Socket socket = server.accept();
             HttpSocketHandler httpSocketHandler = new HttpSocketHandler(
                     "ServerHttpMain", socket, cb
             );
-            new Thread(httpSocketHandler).start();
+            new Thread(httpSocketHandler).start();*/
+            while (!server.isClosed()){
+                Socket socket = server.accept();
+                SocketManager.getInstance().start(
+                        new HttpSocketHandler("ServerHttpMain", socket,
+                                new SocketCallback() {
+                                    @Override
+                                    public void start(String name, long totalSize, boolean isIn) {
+                                        System.out.println("开始下载：" + name);
+                                    }
+
+                                    @Override
+                                    public void handlerProgress(String name, long totalSize, long transSize, boolean isIn) {
+                                        System.out.println("进度值为：" + transSize*100/totalSize);
+                                    }
+
+                                    @Override
+                                    public void end(String name, boolean isIn) {
+                                        System.out.println("结束下载");
+                                    }
+
+                                    @Override
+                                    public void error(Exception e) {
+
+                                    }
+                                })
+                );
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
