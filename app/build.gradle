@@ -40,6 +40,7 @@ dependencies {
     androidTestCompile 'com.android.support:support-annotations:22.1.1'
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':java')
     compile 'com.yanling.android:scanlibrary:1.0'
     compile 'com.yanling.android.view:progress:1.0'
     compile 'com.yanling.android.view:imageshow:1.0'

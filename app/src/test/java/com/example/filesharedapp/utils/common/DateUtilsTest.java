@@ -22,7 +22,7 @@ public class DateUtilsTest {
         s[2] = 0;
         s[3] = 0;
         s[4] = 0;
-        s[5] = 2;
+        s[5] = 1;
         s[6] = 500;
 
         assertArrayEquals(s, DateUtils.millisToTime(1500));

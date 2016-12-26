@@ -104,7 +104,6 @@ public class SocketInApp {
                 callback.start(baseFileInfo.getPath());
                 //遍历文件长度下载
                 while (downloadSize < baseFileInfo.getSize()){
-                    long startTime = System.currentTimeMillis();
                     //判断未传输的长度是否超过了buffer缓冲区长度
                     if (baseFileInfo.getSize() - downloadSize <= BUFFER_LENGTH){
                         //直接读取剩余的长度
@@ -115,9 +114,8 @@ public class SocketInApp {
                     }
                     fos.write(buffer, 0, length);
                     downloadSize += length;
-                    float speed = length /(System.currentTimeMillis() - startTime + 1) / 1024;
                     //设置进度值
-                    callback.setProgress(baseFileInfo.getSize(), downloadSize,speed);
+                    callback.setProgress(baseFileInfo.getSize(), downloadSize);
                 }
                 //读取完毕后关闭文件输入流
                 fos.flush();
@@ -139,7 +137,7 @@ public class SocketInApp {
 
         public void start(String path);
 
-        public void setProgress(long totalSize, long downloadSize, float speed);
+        public void setProgress(long totalSize, long downloadSize);
 
         public void complete(String path);
     }

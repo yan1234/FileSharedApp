@@ -1,6 +1,5 @@
 package com.yanling.socket;
 
-import java.io.File;
 
 /**
  * Socket处理输入输出流回调（主要用于处理文件上传下载的进度）

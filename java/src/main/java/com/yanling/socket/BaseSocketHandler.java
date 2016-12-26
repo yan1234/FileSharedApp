@@ -10,6 +10,12 @@ import java.net.Socket;
  */
 public abstract class BaseSocketHandler implements Runnable{
 
+    //定义缓冲区大小
+    public static final int BUFFER_SIZE = 1024;
+
+    //定义文件存储的路径
+    public static String rootDir = "C:\\";
+
     //定义处理标记
     private String tag;
     //定义socket套接字
@@ -39,6 +45,7 @@ public abstract class BaseSocketHandler implements Runnable{
             handlerOutput();
         }catch (IOException e){
             e.printStackTrace();
+            callback.error(e);
         }
 
         //关闭

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,6 +18,14 @@ import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
 import com.example.filesharedapp.framework.ui.icon.ResourceManager;
 import com.example.filesharedapp.framework.wifi.WifiController;
 import com.yanling.android.view.progress.NoticeProgressManager;
+import com.yanling.socket.SimpleSocketHandler;
+import com.yanling.socket.SocketCallback;
+import com.yanling.socket.SocketManager;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * 文件传输显示列表，主要是显示各个文件上传的一个进度
@@ -82,11 +91,13 @@ public class TransferShowActivity extends Activity {
                 String ipAddress = wifiController.getWifiAddress();
                 //得到服务端的ip地址(xxx.xxx.xxx.1)
                 String remoteIp = ipAddress.substring(0, ipAddress.lastIndexOf(".")) + ".1";
-                //开启socket连接
-                SocketInApp.startClientSocket(remoteIp, qrcodeInfo, null);
+
+
+
             }
         }).start();
     }
+
 
 
 }

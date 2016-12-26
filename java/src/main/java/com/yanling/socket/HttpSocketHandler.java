@@ -27,9 +27,8 @@ public class HttpSocketHandler extends BaseSocketHandler{
     private static final String UPLOAD_ACTION = "fileUpload";
     //用于展示错误的html页面
     private static final String ERROR_PAGE = "error.html";
-
-    //定义缓冲区大小
-    private static final int BUFFER_SIZE = 1024 * 10;
+    //用于默认网页图标设计
+    private static final String TITLE_ICON = "favicon.ico";
 
     //定义变量保存当前请求待处理的操作，主要分为上面三种：下载、页面展示、上传。
     private String outputPage;
@@ -108,7 +107,7 @@ public class HttpSocketHandler extends BaseSocketHandler{
         //开始进行上传监控操作
         callback.start(fileName, fileSize, true);
         //下面开始就是完整的文件数据了
-        File file = new File(fileName);
+        File file = new File(rootDir + fileName);
         FileOutputStream fos = new FileOutputStream(file);
         char[] buff = new char[BUFFER_SIZE];
         int count = 0;
@@ -230,6 +229,11 @@ public class HttpSocketHandler extends BaseSocketHandler{
         else if (line.contains(UPLOAD_ACTION)){
             outputPage = "successPageFileName";
             return false;
+        }//表示默认的网页图标
+        else if (line.contains(TITLE_ICON)){
+            //返回图标数据
+            outputPage = "favicon.ico";
+            return true;
         }else{
             //展示错误提示的页面
             outputPage = "errorPageFileName";

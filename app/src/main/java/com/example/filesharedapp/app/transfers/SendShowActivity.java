@@ -17,8 +17,14 @@ import com.example.filesharedapp.framework.wifi.WifiController;
 import com.example.filesharedapp.utils.json.JsonUtil;
 import com.example.filesharedapp.utils.md5.MD5Utils;
 import com.yanling.android.scanlibrary.ScanUtils;
+import com.yanling.socket.SimpleSocketHandler;
+import com.yanling.socket.SocketCallback;
+import com.yanling.socket.SocketManager;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -136,7 +142,50 @@ public class SendShowActivity extends BaseActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SocketInApp.startServerSocket(qrcodeInfo);
+                //开启socket连接
+                try {
+                    ServerSocket server = new ServerSocket(qrcodeInfo.getHostPort());
+                    while (!server.isClosed()){
+                        //获取连接客户端
+                        Socket socket = server.accept();
+                        SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler("SERVER_APP",
+                                socket,
+                                new SocketCallback() {
+                                    @Override
+                                    public void start(String name, long totalSize, boolean isIn) {
+                                        Log.d("SocketServer", "开始传输：" + name);
+                                    }
+
+                                    @Override
+                                    public void handlerProgress(String name, long totalSize, long transSize, boolean isIn) {
+                                        Log.d("SocketServer", "进度值：" + transSize * 100/totalSize);
+                                    }
+
+                                    @Override
+                                    public void end(String name, boolean isIn) {
+                                        Log.d("SocketServer", "结束传输：" + name);
+                                    }
+
+                                    @Override
+                                    public void error(Exception e) {
+
+                                    }
+                                },
+                                SimpleSocketHandler.FLAG_HANDLER_OUT);
+                        File[] files = new File[qrcodeInfo.getFiles().size()];
+                        for (int i=0; i < files.length; i++){
+                            File file = new File(qrcodeInfo.getFiles().get(i).getPath());
+                            files[i] = file;
+                        }
+                        simpleSocketHandler.setFiles(files);
+                        new Thread(simpleSocketHandler).start();
+                        //开启服务端
+                        //SocketManager.getInstance().start(simpleSocketHandler);
+                        Log.d("SocketServer", "开启服务端");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }).start();
 
