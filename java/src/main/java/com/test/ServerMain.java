@@ -24,7 +24,7 @@ public class ServerMain {
             Socket socket = server.accept();
 
             SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler(
-                    "ServerMain", socket, SimpleSocketHandler.FLAG_HANDLER_OUT
+                    "ServerMain", socket, cb, SimpleSocketHandler.FLAG_HANDLER_OUT
             );
             //设置传输的文件列表
             File file = new File("C:\\zzz");
@@ -41,30 +41,13 @@ public class ServerMain {
             new Thread(httpSocketHandler).start();*/
             while (!server.isClosed()){
                 Socket socket = server.accept();
-                SocketManager.getInstance().start(
-                        new HttpSocketHandler("ServerHttpMain", socket,
-                                new SocketCallback() {
-                                    @Override
-                                    public void start(String name, long totalSize, boolean isIn) {
-                                        System.out.println("开始下载：" + name);
-                                    }
-
-                                    @Override
-                                    public void handlerProgress(String name, long totalSize, long transSize, boolean isIn) {
-                                        System.out.println("进度值为：" + transSize*100/totalSize);
-                                    }
-
-                                    @Override
-                                    public void end(String name, boolean isIn) {
-                                        System.out.println("结束下载");
-                                    }
-
-                                    @Override
-                                    public void error(Exception e) {
-
-                                    }
-                                })
+                SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler(
+                        "ServerMain", socket, cb, SimpleSocketHandler.FLAG_HANDLER_OUT
                 );
+                //设置传输的文件列表
+                File file = new File("C:\\zzz");
+                simpleSocketHandler.setFiles(file.listFiles());
+                SocketManager.getInstance().start(simpleSocketHandler);
             }
 
         } catch (IOException e) {

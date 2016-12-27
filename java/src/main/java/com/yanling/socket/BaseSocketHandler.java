@@ -11,10 +11,10 @@ import java.net.Socket;
 public abstract class BaseSocketHandler implements Runnable{
 
     //定义缓冲区大小
-    public static final int BUFFER_SIZE = 1024;
+    public static final int BUFFER_SIZE = 1024 * 5;
 
     //定义文件存储的路径
-    public static String rootDir = "C:\\";
+    public String rootDir = "C:\\";
 
     //定义处理标记
     private String tag;

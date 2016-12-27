@@ -5,6 +5,8 @@ import com.yanling.socket.SocketCallback;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.charset.Charset;
+import java.util.Arrays;
 
 /**
  * 客户端主程序
@@ -15,10 +17,11 @@ public class ClientMain {
 
     public static void main(String[] args){
         try {
-            Socket socket = new Socket("10.226.172.41", 50426);
+            Socket socket = new Socket("127.0.0.1", 9999);
             SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler(
                 "ClientMain", socket, cb, SimpleSocketHandler.FLAG_HANDLER_IN
             );
+            simpleSocketHandler.rootDir = "C:\\zzzz\\";
             new Thread(simpleSocketHandler).start();
         } catch (IOException e) {
             e.printStackTrace();

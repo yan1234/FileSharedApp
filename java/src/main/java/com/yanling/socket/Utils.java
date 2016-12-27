@@ -14,16 +14,17 @@ public class Utils {
     /**
      * 根据源直接数组获取新的有效字节数组（主要是把源数组中的空字节'0'去掉）
      * @param src，源字节数组
+     * @param placeholder, 待去除的占位符
      * @return，返回新的直接数组,若原数组为null或lenght为0则返回null
      */
-    public static byte[] getAvailabByte(byte[] src){
+    public static byte[] getAvailabByte(byte[] src, char placeholder){
         if (src == null || src.length <= 0){
             return null;
         }
         int availabLen = 0;
         //首先获取有效字节长度
         for (byte b : src){
-            if (b != 0){
+            if (b != placeholder){
                 availabLen ++;
             }else{
                 break;
