@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.filesharedapp" >
+    package="com.example.filesharedapp">
+
 
     <!-- 系统权限设置 -->
 
@@ -24,7 +25,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".TestActivity"
             android:label="@string/title_activity_test" >
@@ -61,6 +62,10 @@
         <activity
             android:name=".app.transfers.TransferShowActivity"
             android:label="@string/title_activity_transfer_show" >
+        </activity>
+        <!-- 传输进度展示页面 -->
+        <activity
+            android:name=".app.transfers.ProgressActivity">
         </activity>
     </application>
 

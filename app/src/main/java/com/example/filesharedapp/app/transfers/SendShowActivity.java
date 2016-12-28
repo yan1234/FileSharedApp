@@ -148,6 +148,7 @@ public class SendShowActivity extends BaseActivity {
                     while (!server.isClosed()){
                         //获取连接客户端
                         Socket socket = server.accept();
+
                         SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler("SERVER_APP",
                                 socket,
                                 new SocketCallback() {
