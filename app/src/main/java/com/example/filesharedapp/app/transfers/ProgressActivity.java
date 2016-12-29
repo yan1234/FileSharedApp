@@ -2,10 +2,13 @@ package com.example.filesharedapp.app.transfers;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.widget.ListView;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.transfers.entity.ProgressEntity;
+import com.example.filesharedapp.framework.storage.StorageManager;
 import com.example.filesharedapp.framework.ui.base.BaseActivity;
 import com.yanling.socket.SimpleSocketHandler;
 import com.yanling.socket.SocketCallback;
@@ -66,8 +69,9 @@ public class ProgressActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    Socket socket = new Socket("", 100);
+                    Socket socket = new Socket("10.224.68.38", 9999);
                     SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler("Client", socket, cb, SimpleSocketHandler.FLAG_HANDLER_IN);
+                    simpleSocketHandler.rootDir = StorageManager.getInstance().getDownload().getPath();
                     new Thread(simpleSocketHandler).start();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -76,11 +80,19 @@ public class ProgressActivity extends BaseActivity {
         }).start();
     }
 
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            adapter.notifyDataSetChanged();
+        }
+    };
+
     private SocketCallback cb = new SocketCallback() {
         @Override
         public void start(String name, long totalSize, boolean isIn) {
             //首先判断该项是否在列表中
-            for (ProgressEntity entity : list){
+            for (ProgressEntity entity : adapter.getList()){
                 if (entity.getTitle().equals(name)){
                     return;
                 }
@@ -89,18 +101,18 @@ public class ProgressActivity extends BaseActivity {
             ProgressEntity entity = new ProgressEntity();
             entity.setTitle(name);
             entity.setTotalSize(totalSize);
-            list.add(entity);
-            adapter.notifyDataSetChanged();
+            adapter.getList().add(entity);
+            handler.obtainMessage().sendToTarget();
         }
 
         @Override
         public void handlerProgress(String name, long totalSize, long transSize, boolean isIn) {
             //更改对应的进度值
-            for (int i=0; i < list.size(); i++){
+            for (int i=0; i < adapter.getList().size(); i++){
                 //更改对应的进度值
-                if (list.get(i).getTitle().equals(name)){
-                    list.get(i).setDownloadSize(transSize);
-                    adapter.notifyDataSetChanged();
+                if (adapter.getList().get(i).getTitle().equals(name)){
+                    adapter.getList().get(i).setDownloadSize(transSize);
+                    handler.obtainMessage().sendToTarget();
                     break;
                 }
             }

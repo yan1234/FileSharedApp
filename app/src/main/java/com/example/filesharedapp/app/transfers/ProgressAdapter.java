@@ -54,7 +54,7 @@ public class ProgressAdapter extends BaseAdapter{
             convertView = LayoutInflater.from(mContext)
                     .inflate(R.layout.item_progress_list, null);
             viewHolder.icon = (ImageView)convertView.findViewById(R.id.item_progress_list_icon);
-            viewHolder.title = (TextView)convertView.findViewById(R.id.item_photo_list_title);
+            viewHolder.title = (TextView)convertView.findViewById(R.id.item_progress_list_title);
             viewHolder.progressView = (NumberProgressView)convertView.findViewById(R.id.item_progress_list_progress);
             convertView.setTag(viewHolder);
         }else{
@@ -71,5 +71,9 @@ public class ProgressAdapter extends BaseAdapter{
         public ImageView icon;
         public TextView title;
         public NumberProgressView progressView;
+    }
+
+    public List<ProgressEntity> getList() {
+        return list;
     }
 }
