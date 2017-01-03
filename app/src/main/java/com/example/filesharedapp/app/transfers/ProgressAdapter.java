@@ -76,4 +76,8 @@ public class ProgressAdapter extends BaseAdapter{
     public List<ProgressEntity> getList() {
         return list;
     }
+
+    public void setList(List<ProgressEntity> list) {
+        this.list = list;
+    }
 }

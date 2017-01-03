@@ -13,9 +13,6 @@ import android.widget.ListView;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.transfers.entity.QrcodeInfo;
-import com.example.filesharedapp.core.SocketInApp;
-import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
-import com.example.filesharedapp.framework.ui.icon.ResourceManager;
 import com.example.filesharedapp.framework.wifi.WifiController;
 import com.yanling.android.view.progress.NoticeProgressManager;
 import com.yanling.socket.SimpleSocketHandler;

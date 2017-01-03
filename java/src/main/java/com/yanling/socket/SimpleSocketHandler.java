@@ -169,7 +169,7 @@ public class SimpleSocketHandler extends BaseSocketHandler{
         if (!targetDir.exists()){
             targetDir.mkdirs();
         }
-        FileOutputStream fos = new FileOutputStream(rootDir + fileName);
+        FileOutputStream fos = new FileOutputStream(rootDir + File.separator + fileName);
         byte[] buffer = new byte[BUFFER_SIZE];
         int count = 0;
         long readLength = 0;

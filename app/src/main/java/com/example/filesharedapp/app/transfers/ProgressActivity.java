@@ -31,8 +31,10 @@ public class ProgressActivity extends BaseActivity {
     private ListView listView;
     //定义进度展示适配器
     private ProgressAdapter adapter;
-    //定义进度数据列表对象
-    private List<ProgressEntity> list;
+    //定义暂存数据列表(主要是为了解决线程并发数据更新造成的bug)
+    private List<ProgressEntity> list = new ArrayList<>();
+    //定义适配器数据
+    private List<ProgressEntity> adapterList = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,9 +59,7 @@ public class ProgressActivity extends BaseActivity {
      * 初始化事件
      */
     private void initEvent(){
-        //获取进度数据
-        list = new ArrayList<>();
-        adapter = new ProgressAdapter(ProgressActivity.this, list);
+        adapter = new ProgressAdapter(ProgressActivity.this, adapterList);
         //绑定适配器
         listView.setAdapter(adapter);
     }
@@ -69,7 +69,7 @@ public class ProgressActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    Socket socket = new Socket("10.224.68.38", 9999);
+                    Socket socket = new Socket("10.224.68.131", 9999);
                     SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler("Client", socket, cb, SimpleSocketHandler.FLAG_HANDLER_IN);
                     simpleSocketHandler.rootDir = StorageManager.getInstance().getDownload().getPath();
                     new Thread(simpleSocketHandler).start();
@@ -84,6 +84,9 @@ public class ProgressActivity extends BaseActivity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            //List<ProgressEntity> list = (List)msg.obj;
+            adapterList.clear();
+            adapterList.addAll(list);
             adapter.notifyDataSetChanged();
         }
     };
@@ -92,7 +95,7 @@ public class ProgressActivity extends BaseActivity {
         @Override
         public void start(String name, long totalSize, boolean isIn) {
             //首先判断该项是否在列表中
-            for (ProgressEntity entity : adapter.getList()){
+            for (ProgressEntity entity : list){
                 if (entity.getTitle().equals(name)){
                     return;
                 }
@@ -101,17 +104,16 @@ public class ProgressActivity extends BaseActivity {
             ProgressEntity entity = new ProgressEntity();
             entity.setTitle(name);
             entity.setTotalSize(totalSize);
-            adapter.getList().add(entity);
+            list.add(entity);
             handler.obtainMessage().sendToTarget();
         }
 
         @Override
         public void handlerProgress(String name, long totalSize, long transSize, boolean isIn) {
-            //更改对应的进度值
-            for (int i=0; i < adapter.getList().size(); i++){
+            for (ProgressEntity entity : list){
                 //更改对应的进度值
-                if (adapter.getList().get(i).getTitle().equals(name)){
-                    adapter.getList().get(i).setDownloadSize(transSize);
+                if (entity.getTitle().equals(name)){
+                    entity.setDownloadSize(transSize);
                     handler.obtainMessage().sendToTarget();
                     break;
                 }

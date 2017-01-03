@@ -11,7 +11,6 @@ import android.widget.Toast;
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
 import com.example.filesharedapp.app.transfers.entity.QrcodeInfo;
-import com.example.filesharedapp.core.SocketInApp;
 import com.example.filesharedapp.framework.ui.base.BaseActivity;
 import com.example.filesharedapp.framework.wifi.WifiController;
 import com.example.filesharedapp.utils.json.JsonUtil;
@@ -193,11 +192,5 @@ public class SendShowActivity extends BaseActivity {
     }
 
     private void startAccept(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                SocketInApp.startClientSocket("127.0.0.1", qrcodeInfo, null);
-            }
-        }).start();
     }
 }

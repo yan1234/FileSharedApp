@@ -7,13 +7,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.filesharedapp.R;
 import com.example.filesharedapp.app.fragment.AppFragment;
@@ -24,16 +22,11 @@ import com.example.filesharedapp.app.fragment.VideoFragment;
 import com.example.filesharedapp.app.transfers.SendShowActivity;
 import com.example.filesharedapp.app.transfers.TransferShowActivity;
 import com.example.filesharedapp.app.transfers.entity.QrcodeInfo;
-import com.example.filesharedapp.framework.media.entity.AppInfo;
-import com.example.filesharedapp.framework.media.entity.BaseFileInfo;
 import com.example.filesharedapp.framework.ui.base.BaseFragment;
 import com.example.filesharedapp.utils.json.JsonUtil;
 import com.yanling.android.scanlibrary.ScanCameraActivity;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -44,10 +37,15 @@ import java.util.List;
  */
 public class HomeMainActivity extends FragmentActivity implements View.OnClickListener{
 
-    //定义抽屉布局
-    private DrawerLayout mDrawerLayout;
-    //定义头部抽屉icon
-    private ImageView header_icon;
+    //定义头部的左右操作按钮
+    private ImageView header_left;
+    private ImageView header_right;
+
+    //定义底部的导航操作
+    private View bottom_left;//传输记录
+    private View bottom_middle;//传输
+    private View bottom_right;//关于我
+
     //定义viewPager
     private ViewPager mViewPager;
     //定义fragment适配器
@@ -70,13 +68,6 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
     private View line_tab3;
     private View line_tab4;
 
-    //定义悬浮的快捷操作按钮
-    private ImageView home_shortcut_show;
-    private ImageView home_shortcut_cancel;
-    private ImageView home_shortcut_send;
-    private ImageView home_shortcut_accept;
-    //定义遮挡的蒙层
-    private RelativeLayout home_shortcut_frame;
 
 
     @Override
@@ -95,10 +86,16 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
      * 初始化view
      */
     private void initView(){
+        //载入头部按钮布局
+        header_left = (ImageView)this.findViewById(R.id.header_left);
+        header_right = (ImageView)this.findViewById(R.id.header_right);
+        //载入底部布局
+        bottom_left = this.findViewById(R.id.home_main_bottom_left);
+        bottom_middle = this.findViewById(R.id.home_main_bottom_middle);
+        bottom_right = this.findViewById(R.id.home_main_bottom_right);
+
         //载入基础布局
-        mDrawerLayout = (DrawerLayout)this.findViewById(R.id.drawer_layout);
         mViewPager = (ViewPager)this.findViewById(R.id.viewPager);
-        header_icon = (ImageView)this.findViewById(R.id.header_icon);
         //载入tab选项卡布局
         appLayout = (LinearLayout)this.findViewById(R.id.tab0);
         photoLayout = (LinearLayout)this.findViewById(R.id.tab1);
@@ -123,12 +120,6 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
         fragments.add(videoFragment);
         fragments.add(otherFragment);
 
-        //添加快捷按钮和遮挡蒙层
-        home_shortcut_show = (ImageView)findViewById(R.id.home_shortcut_show);
-        home_shortcut_cancel = (ImageView)findViewById(R.id.home_shortcut_cancel);
-        home_shortcut_send = (ImageView)findViewById(R.id.home_shortcut_send);
-        home_shortcut_accept = (ImageView)findViewById(R.id.home_shortcut_accept);
-        home_shortcut_frame = (RelativeLayout)findViewById(R.id.home_shortcut_frame);
 
     }
 
@@ -136,13 +127,16 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
      * 初始化事件
      */
     private void initEvent() {
-        //添加头部icon的点击事件
-        header_icon.setOnClickListener(this);
-        //添加快捷按钮的点击事件
-        home_shortcut_show.setOnClickListener(this);
-        home_shortcut_cancel.setOnClickListener(this);
-        home_shortcut_send.setOnClickListener(this);
-        home_shortcut_accept.setOnClickListener(this);
+        //首页隐藏返回按钮
+        header_left.setVisibility(View.INVISIBLE);
+        //给右侧的扫描按钮添加点击事件
+        header_right.setOnClickListener(this);
+
+        //底部区域操作按钮添加点击事件
+        bottom_left.setOnClickListener(this);
+        bottom_middle.setOnClickListener(this);
+        bottom_right.setOnClickListener(this);
+
         //添加绑定适配器
         mAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -186,34 +180,30 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            //头部icon的点击事件
-            case R.id.header_icon:
-                //触发抽屉事件
-                mDrawerLayout.openDrawer(Gravity.LEFT);
-                break;
-            case R.id.home_shortcut_show:
-                //展现蒙层
-                home_shortcut_frame.setVisibility(View.VISIBLE);
-                break;
-            case R.id.home_shortcut_cancel:
-                //关闭蒙层
-                home_shortcut_frame.setVisibility(View.GONE);
-                break;
             //跳转到二维码展示界面，并传递对应的文件信息
-            case R.id.home_shortcut_send:
+            case 1:
                 Intent intent = new Intent(HomeMainActivity.this, SendShowActivity.class);
                 //封装待发送的文件路径
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("fileinfos", fragments.get(position).getSelectList());
                 intent.putExtras(bundle);
                 startActivity(intent);
-                home_shortcut_frame.setVisibility(View.GONE);
                 break;
-            //扫描二维码
-            case R.id.home_shortcut_accept:
-                startActivityForResult(new Intent(HomeMainActivity.this, ScanCameraActivity.class),
-                        100);
-                home_shortcut_frame.setVisibility(View.GONE);
+            case R.id.home_main_bottom_left:
+                //底部左侧的操作栏
+                Toast.makeText(HomeMainActivity.this, "你点击了左侧操作栏", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.home_main_bottom_middle:
+                //底部左侧的操作栏
+                Toast.makeText(HomeMainActivity.this, "你点击了中间操作栏", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.home_main_bottom_right:
+                //底部左侧的操作栏
+                Toast.makeText(HomeMainActivity.this, "你点击了右侧操作栏", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.header_right:
+                //扫描点击事件
+                startActivityForResult(new Intent(HomeMainActivity.this, ScanCameraActivity.class), 100);
                 break;
             case R.id.tab0:
                 selectPage(0);

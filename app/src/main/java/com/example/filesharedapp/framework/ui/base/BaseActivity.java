@@ -55,11 +55,11 @@ public class BaseActivity extends Activity {
     private void init(View view){
         if (view != null){
             //返回按钮
-            header_operate = (ImageView)findViewById(R.id.header_icon);
+            header_operate = (ImageView)findViewById(R.id.header_left);
             //标题
             header_title = (TextView)findViewById(R.id.header_title);
             //开关按钮
-            header_switch = (ImageView)findViewById(R.id.header_switch);
+            header_switch = (ImageView)findViewById(R.id.header_right);
         }
         //绑定操作事件
         if (header_operate != null){
@@ -84,7 +84,7 @@ public class BaseActivity extends Activity {
         public void onClick(View v) {
             switch(v.getId()){
                 //返回按钮
-                case R.id.header_icon:
+                case R.id.header_left:
                     break;
             }
         }
