@@ -9,7 +9,7 @@ android {
     }*/
 
     defaultConfig {
-        applicationId "com.example.filesharedapp"
+        applicationId "com.yanling.fileshared"
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 1

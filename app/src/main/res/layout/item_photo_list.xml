@@ -16,11 +16,11 @@
         android:layout_height="30dp" />
 
     <!-- 图片展示列表 -->
-    <com.example.filesharedapp.framework.ui.gridview.PhotoGridView
+    <com.yanling.fileshared.framework.ui.gridview.PhotoGridView
         android:id="@+id/item_photo_list_gridview"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:scrollbars="none"
-        android:numColumns="4"></com.example.filesharedapp.framework.ui.gridview.PhotoGridView>
+        android:numColumns="4"></com.yanling.fileshared.framework.ui.gridview.PhotoGridView>
 
 </LinearLayout>
