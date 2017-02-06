@@ -1,6 +1,8 @@
 package com.yanling.fileshared.app;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,9 +20,10 @@ import com.yanling.fileshared.app.main.MusicFragment;
 import com.yanling.fileshared.app.main.OtherFragment;
 import com.yanling.fileshared.app.main.PhotoFragment;
 import com.yanling.fileshared.app.main.VideoFragment;
-import com.yanling.fileshared.app.transfers.android.SendShowActivity;
+import com.yanling.fileshared.app.transfers.android.SendBetweenAppActivity;
 import com.yanling.fileshared.app.transfers.TransferShowActivity;
 import com.yanling.fileshared.app.transfers.android.entity.QrcodeInfo;
+import com.yanling.fileshared.app.transfers.service.TransferService;
 import com.yanling.fileshared.framework.Constants;
 import com.yanling.fileshared.framework.ui.base.BaseFragment;
 import com.yanling.fileshared.utils.json.JsonUtil;
@@ -180,9 +183,6 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case 1:
-
-                break;
             case R.id.home_main_bottom_left:
                 //底部左侧的操作栏
                 Toast.makeText(HomeMainActivity.this, "你点击了左侧操作栏", Toast.LENGTH_SHORT).show();
@@ -190,13 +190,7 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
             case R.id.home_main_bottom_middle:
                 //底部左侧的操作栏
                 Toast.makeText(HomeMainActivity.this, "你点击了中间操作栏", Toast.LENGTH_SHORT).show();
-                //跳转到二维码展示界面，并传递对应的文件信息
-                Intent intent = new Intent(HomeMainActivity.this, SendShowActivity.class);
-                //封装待发送的文件路径
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(Constants.BUNDLE_KEY_TRANSFER, fragments.get(position).getSelectList());
-                intent.putExtras(bundle);
-                startActivity(intent);
+                showTransferDialog();
                 break;
             case R.id.home_main_bottom_right:
                 //底部左侧的操作栏
@@ -293,6 +287,52 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
                 startActivity(intent);
             }
         }
+    }
+
+    /**
+     * 展示传输类别选择弹框
+     */
+    private void showTransferDialog(){
+        //构造选择器弹框
+        AlertDialog.Builder builder = new AlertDialog.Builder(HomeMainActivity.this);
+        builder.setTitle("请选择传输的类型");
+        //设置列表
+        final String[] items = {"发送文件到其他Android手机", "接收文件从其他Android手机", "发送文件到电脑", "接收文件从电脑"};
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch (i) {
+                    case 0:
+                        //跳转到发送界面
+                        //判断是否选中了文件
+                        if (fragments.get(position).getSelectList().size() >= 1) {
+                            //启动传输服务，并传递对应的文件信息
+                            Intent intent = new Intent(HomeMainActivity.this, TransferService.class);
+                            //封装待发送的文件路径
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable(Constants.BUNDLE_KEY_TRANSFER, fragments.get(position).getSelectList());
+                            intent.putExtras(bundle);
+                            startService(intent);
+                        } else {
+                            Toast.makeText(HomeMainActivity.this, "请至少选择一个待发送的文件", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                    case 1:
+                        //条码扫描界面接收文件
+                        startActivityForResult(new Intent(HomeMainActivity.this, ScanCameraActivity.class), 100);
+                        break;
+                    case 2:
+                        //发送文件到电脑
+                        break;
+                    case 3:
+                        //接收文件从电脑
+                        break;
+                }
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
     }
 
 }

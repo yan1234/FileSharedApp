@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    tools:context="com.yanling.fileshared.app.transfers.android.SendShowActivity">
+    tools:context="com.yanling.fileshared.app.transfers.android.SendBetweenAppActivity">
 
     <!-- 公共头部 -->
     <include layout="@layout/activity_header" />

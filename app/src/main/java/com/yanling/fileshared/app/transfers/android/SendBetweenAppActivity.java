@@ -28,48 +28,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class SendShowActivity extends BaseActivity {
+public class SendBetweenAppActivity extends BaseActivity {
 
-    //定义常量标志wifi名称
-    private static final String WIFI_NAME = "FileShare";
+
 
     //二维码图片
     private ImageView image_qrcode;
     //提示文字
     private TextView text_tip;
-
     //定义待发送的条码信息对象
     private QrcodeInfo qrcodeInfo = null;
-    //定义待发送的文件列表对象
-    private List<BaseFileInfo> baseFileInfoList = null;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_show);
-        //获取上一个界面传递过来的待发送的文件列表
-        baseFileInfoList = (List<BaseFileInfo>)getIntent().getExtras().getSerializable(Constants.BUNDLE_KEY_TRANSFER);
+        //获取传递过来的条码信息
+        qrcodeInfo = (QrcodeInfo)getIntent().getExtras().getSerializable(Constants.BUNDLE_KEY_QRCODEINFO);
         //初始化界面
         initView();
         //初始化事件；
         initEvent();
-
-
-        //测试代码
-        ((Button)findViewById(R.id.btn)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((Button)findViewById(R.id.btn)).setText("关闭传输");
-                startSend();
-            }
-        });
-        ((Button)findViewById(R.id.accept)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((Button)findViewById(R.id.accept)).setText("关闭接收");
-                startAccept();
-            }
-        });
     }
 
     /**
@@ -86,27 +66,11 @@ public class SendShowActivity extends BaseActivity {
      * 初始化事件
      */
     private void initEvent(){
-        //初始化socket 端口号
-        qrcodeInfo = new QrcodeInfo();
-        //随机生成端口号(50000-59999之间)
-        qrcodeInfo.setHostPort(50000 + new Random().nextInt(10000));
-        //开启wifi
-        //随机生成wifi名称和密码
-        String ssid = WIFI_NAME + new Random().nextInt(100);
-        String password = ssid;
-        qrcodeInfo.setSsid(ssid);
-        qrcodeInfo.setPreSharedKey(password);
-        WifiController wifiController = new WifiController(SendShowActivity.this);
-        if (wifiController.startWifiAp(ssid, password, true)){
-            //wifi开启成功
-            //生成二维码并展示
-            String content = packageSendInfo();
-            image_qrcode.setImageBitmap(ScanUtils.encodeQRCode(content,
-                    250, 250));
-            text_tip.setText("文件：" + content);
-        }else{
-            Toast.makeText(SendShowActivity.this, "无线共享开启失败", Toast.LENGTH_SHORT).show();
-        }
+        //生成二维码并展示
+        String content = packageSendInfo();
+        image_qrcode.setImageBitmap(ScanUtils.encodeQRCode(content,
+                250, 250));
+        text_tip.setText("文件：" + content);
     }
 
 
@@ -118,18 +82,18 @@ public class SendShowActivity extends BaseActivity {
 
         List<BaseFileInfo> list = new ArrayList<>();
         //将缺失的信息补全
-        for (int i = 0; i < baseFileInfoList.size(); i++){
+        for (int i = 0; i < qrcodeInfo.getFiles().size(); i++){
             BaseFileInfo fileInfo = new BaseFileInfo();
             //如果传输的是app
-            if (baseFileInfoList.get(i).getType() == BaseFileInfo.TYPE_APP){
-                fileInfo.setName(baseFileInfoList.get(i).getName() + ".apk");
+            if (qrcodeInfo.getFiles().get(i).getType() == BaseFileInfo.TYPE_APP){
+                fileInfo.setName(qrcodeInfo.getFiles().get(i).getName() + ".apk");
             }else{
-                fileInfo.setName(baseFileInfoList.get(i).getName());
+                fileInfo.setName(qrcodeInfo.getFiles().get(i).getName());
             }
-            fileInfo.setPath(baseFileInfoList.get(i).getPath());
+            fileInfo.setPath(qrcodeInfo.getFiles().get(i).getPath());
             fileInfo.setSize(new File(fileInfo.getPath()).length());
             fileInfo.setMd5(MD5Utils.getFileMD5(new File(fileInfo.getPath())));
-            fileInfo.setType(baseFileInfoList.get(i).getType());
+            fileInfo.setType(qrcodeInfo.getFiles().get(i).getType());
             list.add(fileInfo);
         }
         qrcodeInfo.setFiles(list);

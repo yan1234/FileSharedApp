@@ -55,7 +55,7 @@
         </activity>
         <!-- 传输条码信息展示页 -->
         <activity
-            android:name=".app.transfers.android.SendShowActivity"
+            android:name=".app.transfers.android.SendBetweenAppActivity"
             android:label="@string/title_activity_send_show" >
         </activity>
         <!-- 文件传输进度展示页 -->
@@ -71,6 +71,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>-->
         </activity>
+
+        <!-- Service -->
+        <!-- 文件传输后台服务 -->
+        <service android:name=".app.transfers.service.TransferService"></service>
     </application>
 
 </manifest>
