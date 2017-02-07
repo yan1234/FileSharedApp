@@ -13,6 +13,8 @@ public class Constants {
     //android手机间互传生成的条码内容对象的bundle的key值
     public static final String BUNDLE_KEY_QRCODEINFO = "qrcodeinfo";
 
+    //传输类别的key值
+    public static final String BUNDLE_KEY_TRANSFER_TYPE = "transfer_type";
 
     //定义常量标志wifi名称
     public static final String WIFI_NAME = "FileShare";

@@ -278,13 +278,12 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
                 String code = data.getExtras().getString(ScanCameraActivity.SCAN_CODE);
                 //将字符串信息转化为传输实体
                 QrcodeInfo qrcodeInfo = JsonUtil.jsonToObject(code, QrcodeInfo.class);
-                //传递信息到文件发送页面
-                Intent intent = new Intent(HomeMainActivity.this, TransferShowActivity.class);
+                //封装信息传输到服务
                 Bundle bundle = new Bundle();
-                bundle.putSerializable(com.yanling.fileshared.framework.Constants.BUNDLE_KEY_TRANSFER, qrcodeInfo);
-                intent.putExtras(bundle);
-                //跳转到传输界面
-                startActivity(intent);
+                bundle.putInt(Constants.BUNDLE_KEY_TRANSFER_TYPE, 1);
+                bundle.putSerializable(Constants.BUNDLE_KEY_QRCODEINFO, qrcodeInfo);
+                //开启服务
+                startTransferService(bundle);
             }
         }
     }
@@ -301,38 +300,43 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                switch (i) {
-                    case 0:
-                        //跳转到发送界面
-                        //判断是否选中了文件
-                        if (fragments.get(position).getSelectList().size() >= 1) {
-                            //启动传输服务，并传递对应的文件信息
-                            Intent intent = new Intent(HomeMainActivity.this, TransferService.class);
-                            //封装待发送的文件路径
-                            Bundle bundle = new Bundle();
-                            bundle.putSerializable(Constants.BUNDLE_KEY_TRANSFER, fragments.get(position).getSelectList());
-                            intent.putExtras(bundle);
-                            startService(intent);
-                        } else {
-                            Toast.makeText(HomeMainActivity.this, "请至少选择一个待发送的文件", Toast.LENGTH_SHORT).show();
-                        }
-                        break;
-                    case 1:
-                        //条码扫描界面接收文件
-                        startActivityForResult(new Intent(HomeMainActivity.this, ScanCameraActivity.class), 100);
-                        break;
-                    case 2:
-                        //发送文件到电脑
-                        break;
-                    case 3:
-                        //接收文件从电脑
-                        break;
+                //表示需要发送文件到其他端（手机或者电脑）
+                if (i == 0 || i == 2) {
+                    //判断是否选中了文件
+                    if (fragments.get(position).getSelectList().size() >= 1) {
+                        //封装待发送的文件路径
+                        Bundle bundle = new Bundle();
+                        bundle.putInt(Constants.BUNDLE_KEY_TRANSFER_TYPE, i);
+                        bundle.putSerializable(Constants.BUNDLE_KEY_TRANSFER, fragments.get(position).getSelectList());
+                        startTransferService(bundle);
+                    } else {
+                        Toast.makeText(HomeMainActivity.this, "请至少选择一个待发送的文件", Toast.LENGTH_SHORT).show();
+                    }
+                }//表示从其他手机扫码接收文件
+                else if (i == 1){
+                    startActivityForResult(new Intent(HomeMainActivity.this, ScanCameraActivity.class), 100);
+                }//表示从电脑端接收文件
+                else if (i == 3){
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(Constants.BUNDLE_KEY_TRANSFER_TYPE, i);
+                    //开启服务
+                    startTransferService(bundle);
                 }
             }
         });
         AlertDialog dialog = builder.create();
         dialog.show();
 
+    }
+
+    /**
+     * 开启传输服务
+     * @param bundle，代传递的bundle信息
+     */
+    private void startTransferService(Bundle bundle){
+        Intent intent = new Intent(HomeMainActivity.this, TransferService.class);
+        intent.putExtras(bundle);
+        startService(intent);
     }
 
 }
