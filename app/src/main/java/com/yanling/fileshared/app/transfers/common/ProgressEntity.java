@@ -26,6 +26,9 @@ public class ProgressEntity implements Serializable{
     //已下载大小
     private long downloadSize;
 
+    //当前下载对象实体的标记
+    private String tag;
+
     public Bitmap getIcon() {
         return icon;
     }
@@ -56,5 +59,13 @@ public class ProgressEntity implements Serializable{
 
     public void setDownloadSize(long downloadSize) {
         this.downloadSize = downloadSize;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }

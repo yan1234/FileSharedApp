@@ -2,15 +2,15 @@ package com.yanling.fileshared.app.transfers.service;
 
 import android.app.Service;
 import android.content.Intent;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.yanling.android.scanlibrary.ScanUtils;
 import com.yanling.fileshared.app.transfers.android.SendBetweenAppActivity;
 import com.yanling.fileshared.app.transfers.android.entity.QrcodeInfo;
+import com.yanling.fileshared.app.transfers.common.ProgressActivity;
+import com.yanling.fileshared.app.transfers.common.ProgressEntity;
 import com.yanling.fileshared.framework.Constants;
 import com.yanling.fileshared.framework.media.entity.BaseFileInfo;
 import com.yanling.fileshared.framework.storage.StorageManager;
@@ -23,8 +23,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * 传输服务
@@ -60,6 +63,8 @@ public class TransferService extends Service{
 
     //定义socket服务端
     private ServerSocket server;
+    //定义socket客户端
+    private Socket socket;
 
     //定义连接到的客户端的数量
     private int client_count = 0;
@@ -73,10 +78,28 @@ public class TransferService extends Service{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent == null){
+            return -1;
+        }
         Log.d(TAG, "调用传输服务");
         //判断当前服务的运行状况
         if (isRunning){
             //当前服务已经在运行，跳转到指定的界面
+            if (type_transfer == TYPE_TRANSFER_FROM_OTHER_PHONE){
+                //如果是接收其他手机传递的文件，跳转到进度界面
+                //跳转到进度展示界面
+                Intent data = new Intent(TransferService.this, ProgressActivity.class);
+                data.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(data);
+            }else if (type_transfer == TYPE_TRANSFER_TO_OTHER_PHONE){
+                //跳转到条码展示界面
+                Intent data = new Intent(TransferService.this, SendBetweenAppActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(Constants.BUNDLE_KEY_QRCODEINFO, qrcodeInfo);
+                data.putExtras(bundle);
+                data.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(data);
+            }
         }else {
             //获取当前的传输类别
             type_transfer = intent.getExtras().getInt(Constants.BUNDLE_KEY_TRANSFER_TYPE);
@@ -127,6 +150,7 @@ public class TransferService extends Service{
                 startActivity(intent);
             }else{
                 Toast.makeText(TransferService.this, "无线共享开启失败", Toast.LENGTH_SHORT).show();
+                onError(new Exception("无线共享开启失败"));
             }
         }else{
             //从其他手机接收文件
@@ -163,6 +187,7 @@ public class TransferService extends Service{
                 }
             }catch (IOException e){
                 e.printStackTrace();
+                onError(e);
             }
 
         }
@@ -200,7 +225,7 @@ public class TransferService extends Service{
             wifiController.connectWifi(qrcodeInfo.getSsid(), qrcodeInfo.getPreSharedKey());
             try {
                 //休眠3s然后再获取连接的ip地址
-                Thread.sleep(3 * 1000);
+                Thread.sleep(5 * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -209,8 +234,12 @@ public class TransferService extends Service{
             //得到服务端的ip地址(xxx.xxx.xxx.1)
             String remoteIp = ipAddress.substring(0, ipAddress.lastIndexOf(".")) + ".1";
             Log.d(TAG, "远端ip地址为：" + remoteIp);
+            //跳转到进度展示界面
+            Intent intent = new Intent(TransferService.this, ProgressActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
             //开启socket连接
-            Socket socket = new Socket(remoteIp, qrcodeInfo.getHostPort());
+            socket = new Socket(remoteIp, qrcodeInfo.getHostPort());
             //处理socket消息
             SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler(
                     "ClientMain", socket, new TransferSocketCallback(), SimpleSocketHandler.FLAG_HANDLER_IN
@@ -227,14 +256,39 @@ public class TransferService extends Service{
      */
     class TransferSocketCallback implements SocketCallback{
 
+        //定义列表保存进度值
+        private List<ProgressEntity> list = new ArrayList<>();
+
+        //定义每一个下载对象的标记
+        private String download_tag;
+
         @Override
         public void start(String name, long totalSize, boolean isIn) {
             Log.d("SocketCallback", "开始传输：" + name);
+            //这里表示新的数据传输
+            ProgressEntity entity = new ProgressEntity();
+            entity.setTitle(name);
+            entity.setTotalSize(totalSize);
+            //生成该进度实体的标记
+            download_tag = "" + System.currentTimeMillis();
+            entity.setTag(download_tag);
+            list.add(entity);
+            //发布订阅消息到更新界面
+            EventBus.getDefault().post(list);
         }
 
         @Override
         public void handlerProgress(String name, long totalSize, long transSize, boolean isIn) {
             Log.d("SocketCallback", "进度值：" + transSize * 100/totalSize);
+            for (ProgressEntity entity : list){
+                //更改对应的进度值(下载标记相同即为相同)
+                if (entity.getTag().equals(download_tag)){
+                    entity.setDownloadSize(transSize);
+                    //发布订阅消息
+                    EventBus.getDefault().post(list);
+                    break;
+                }
+            }
         }
 
         @Override
@@ -244,13 +298,45 @@ public class TransferService extends Service{
 
         @Override
         public void error(Exception e) {
-
+            onError(e);
         }
+    }
+
+    /**
+     * 服务运行错误处理
+     * @param e
+     */
+    private void onError(Exception e){
+        Log.e(TAG, e.getMessage());
+        //关闭服务
+        close();
+    }
+
+    /**
+     * 关闭服务
+     */
+    private void close(){
+        try{
+            //关闭socket服务端或者客户端
+            if (server != null && !server.isClosed()){
+                server.close();
+            }
+            if (socket != null && !socket.isClosed()){
+                socket.close();
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        isRunning = false;
+        //关闭服务
+        stopSelf();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        //关闭
+        close();
     }
 
     @Override
