@@ -13,7 +13,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <Button
+        <!--<Button
             android:id="@+id/btn"
             android:layout_width="120dp"
             android:layout_height="50dp"
@@ -24,11 +24,20 @@
             android:layout_width="120dp"
             android:layout_height="50dp"
             android:text="开始接收"
-            android:layout_toRightOf="@+id/btn"/>
+            android:layout_toRightOf="@+id/btn"/>-->
+
+        <ListView
+            android:id="@+id/send_between_app_client"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:visibility="invisible">
+
+        </ListView>
 
         <!-- 生成的文件传输的二维码 -->
         <ImageView
-            android:id="@+id/send_image_qrcode"
+            android:id="@+id/send_between_app_image_qrcode"
             android:layout_width="250dp"
             android:layout_height="250dp"
             android:layout_centerInParent="true" />
@@ -37,10 +46,10 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/send_image_qrcode"
+            android:layout_below="@+id/send_between_app_image_qrcode"
             android:orientation="vertical">
             <TextView
-                android:id="@+id/send_text_tips"
+                android:id="@+id/send_between_app_text_tips"
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent" />
         </LinearLayout>

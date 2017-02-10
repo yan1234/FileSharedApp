@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import de.greenrobot.event.EventBus;
@@ -66,6 +68,8 @@ public class TransferService extends Service{
     //定义socket客户端
     private Socket socket;
 
+    //定义map保存当前连接到的所有客户端的传输进度(key值为当前连接的是第几个client)
+    private List<List<ProgressEntity>> clients;
     //定义连接到的客户端的数量
     private int client_count = 0;
 
@@ -201,7 +205,10 @@ public class TransferService extends Service{
             while (!server.isClosed()) {
                 //获取连接客户端
                 Socket socket = server.accept();
-                SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler("SERVER_APP",
+                //将当前连接添加到列表中
+                clients = new ArrayList<>();
+                client_count ++;
+                SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler("SERVER_APP" + client_count,
                         socket, new TransferSocketCallback(),
                         SimpleSocketHandler.FLAG_HANDLER_OUT);
                 File[] files = new File[list.size()];
@@ -275,6 +282,14 @@ public class TransferService extends Service{
             list.add(entity);
             //发布订阅消息到更新界面
             EventBus.getDefault().post(list);
+
+            if (type_transfer == TYPE_TRANSFER_TO_OTHER_PHONE){
+                //下面是服务端回调展示处理
+                //将当前进度列表添加到map中
+                clients.add(list);
+                //将消息传递到指定的界面
+            }
+
         }
 
         @Override
@@ -289,6 +304,11 @@ public class TransferService extends Service{
                     break;
                 }
             }
+            if (type_transfer == TYPE_TRANSFER_TO_OTHER_PHONE){
+                //下面是服务端回调展示处理
+                //传递消息到指定的界面
+            }
+
         }
 
         @Override
