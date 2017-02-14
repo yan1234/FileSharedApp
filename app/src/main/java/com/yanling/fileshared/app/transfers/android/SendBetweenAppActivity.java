@@ -1,6 +1,7 @@
 package com.yanling.fileshared.app.transfers.android;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -24,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import de.greenrobot.event.EventBus;
+
 public class SendBetweenAppActivity extends BaseActivity implements View.OnClickListener{
 
 
@@ -45,6 +48,8 @@ public class SendBetweenAppActivity extends BaseActivity implements View.OnClick
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_between_app);
+        //注册EventBus消息
+        EventBus.getDefault().register(this);
         //获取传递过来的条码信息
         qrcodeInfo = (QrcodeInfo)getIntent().getExtras().getSerializable(Constants.BUNDLE_KEY_QRCODEINFO);
         //初始化界面
@@ -79,6 +84,12 @@ public class SendBetweenAppActivity extends BaseActivity implements View.OnClick
         //给listview绑定适配器
 
         lv_client.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        //注销EventBus
+        EventBus.getDefault().unregister(this);
     }
 
     /**
@@ -121,6 +132,17 @@ public class SendBetweenAppActivity extends BaseActivity implements View.OnClick
         }
     }
 
+    /**
+     * EventBus消息接收
+     * @param list
+     */
+    public void onEventMainThread(List<List<ProgressEntity>> list){
+        //更新适配器
+        this.clients = list;
+        adapter.notifyDataSetChanged();
+    }
+
+
     class ClientAdapter extends BaseAdapter{
 
         @Override
@@ -139,8 +161,28 @@ public class SendBetweenAppActivity extends BaseActivity implements View.OnClick
         }
 
         @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
-            return null;
+        public View getView(int i, View convertView, ViewGroup viewGroup) {
+            ViewHolder viewHolder = null;
+            if (viewHolder == null){
+                viewHolder = new ViewHolder();
+                //载入布局
+                convertView = LayoutInflater.from(SendBetweenAppActivity.this)
+                        .inflate(R.layout.item_clients_list, null);
+                viewHolder.image = (ImageView)convertView.findViewById(R.id.item_clients_list_image);
+                viewHolder.text = (TextView)convertView.findViewById(R.id.item_clients_list_text);
+                convertView.setTag(viewHolder);
+
+            }else{
+                viewHolder = (ViewHolder)convertView.getTag();
+            }
+            //设置标题
+            viewHolder.text.setText(clients.get(i).get(0).getTag());
+            return convertView;
+        }
+
+        class ViewHolder{
+            public ImageView image;
+            public TextView text;
         }
     }
 

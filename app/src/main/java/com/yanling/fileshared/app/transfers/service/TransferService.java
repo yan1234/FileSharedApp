@@ -288,6 +288,7 @@ public class TransferService extends Service{
                 //将当前进度列表添加到map中
                 clients.add(list);
                 //将消息传递到指定的界面
+                EventBus.getDefault().post(clients);
             }
 
         }
@@ -307,6 +308,7 @@ public class TransferService extends Service{
             if (type_transfer == TYPE_TRANSFER_TO_OTHER_PHONE){
                 //下面是服务端回调展示处理
                 //传递消息到指定的界面
+                EventBus.getDefault().post(clients);
             }
 
         }
