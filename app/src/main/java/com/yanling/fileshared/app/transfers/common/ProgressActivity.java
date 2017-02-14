@@ -8,6 +8,8 @@ import android.util.Log;
 import android.widget.ListView;
 
 import com.yanling.fileshared.R;
+import com.yanling.fileshared.app.transfers.service.EventMessageForClient;
+import com.yanling.fileshared.framework.Constants;
 import com.yanling.fileshared.framework.storage.StorageManager;
 import com.yanling.fileshared.framework.ui.base.BaseActivity;
 import com.yanling.socket.SimpleSocketHandler;
@@ -36,10 +38,15 @@ public class ProgressActivity extends BaseActivity {
     //定义适配器数据
     private List<ProgressEntity> adapterList = new ArrayList<>();
 
+    //定义tag变量保存当前展示的进度是哪个客户端
+    private String tag;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_progress_list);
+        //获取当前界面客户端的tag
+        tag = getIntent().getStringExtra(Constants.BUNDLE_KEY_CLIENT_TAG);
         //注册EventBus事件
         EventBus.getDefault().register(this);
         //设置标题
@@ -64,13 +71,20 @@ public class ProgressActivity extends BaseActivity {
         listView.setAdapter(adapter);
     }
 
-    public void onEventMainThread(List<ProgressEntity> list){
+    public void onEventMainThread(List<EventMessageForClient> clients){
         Log.d(TAG, "收到更新的进度");
         //定义暂存数据列表(主要是为了解决线程并发数据更新造成的bug)
         //更新适配器的列表
-        adapterList.clear();
-        adapterList.addAll(list);
-        adapter.notifyDataSetChanged();
+        //判断当前是哪个客户端
+        for (EventMessageForClient client : clients){
+            if (tag.equals(client.getTag())){
+                adapterList.clear();
+                adapterList.addAll(client.getList());
+                adapter.notifyDataSetChanged();
+                break;
+            }
+        }
+
     }
 
     @Override

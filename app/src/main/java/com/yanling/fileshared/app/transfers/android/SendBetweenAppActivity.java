@@ -1,17 +1,22 @@
 package com.yanling.fileshared.app.transfers.android;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.yanling.fileshared.R;
+import com.yanling.fileshared.app.transfers.common.ProgressActivity;
 import com.yanling.fileshared.app.transfers.common.ProgressEntity;
+import com.yanling.fileshared.app.transfers.service.EventMessageForClient;
 import com.yanling.fileshared.framework.Constants;
 import com.yanling.fileshared.framework.media.entity.BaseFileInfo;
 import com.yanling.fileshared.app.transfers.android.entity.QrcodeInfo;
@@ -35,7 +40,7 @@ public class SendBetweenAppActivity extends BaseActivity implements View.OnClick
     //定义适配器
     private BaseAdapter adapter;
     //定义当前所有客户端进度列表对象
-    private List<List<ProgressEntity>> clients;
+    private List<EventMessageForClient> clients;
     //二维码图片
     private ImageView image_qrcode;
     //提示文字
@@ -81,13 +86,28 @@ public class SendBetweenAppActivity extends BaseActivity implements View.OnClick
                 250, 250));
         text_tip.setText("文件：" + content);
         header_right.setOnClickListener(this);
+        //初始化数据列表
+        clients = new ArrayList<>();
         //给listview绑定适配器
-
+        adapter = new ClientAdapter();
         lv_client.setAdapter(adapter);
+        //隐藏界面
+        lv_client.setVisibility(View.INVISIBLE);
+        //添加listview的item点击事件
+        lv_client.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                //点击每个客户端的传输情况进入到详细的文件进度界面
+                Intent intent = new Intent(SendBetweenAppActivity.this, ProgressActivity.class);
+                intent.putExtra(Constants.BUNDLE_KEY_CLIENT_TAG, clients.get(i).getTag());
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         //注销EventBus
         EventBus.getDefault().unregister(this);
     }
@@ -123,22 +143,27 @@ public class SendBetweenAppActivity extends BaseActivity implements View.OnClick
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.header_right:
+                if (clients.size() <= 0){
+                    Toast.makeText(SendBetweenAppActivity.this, "当前没有客户端连接", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 //右边操作标示点击事件，主要用于显示和隐藏连接客户端
-                if (lv_client.getVisibility() == View.INVISIBLE){
+                if (lv_client.getVisibility() == View.VISIBLE){
                     lv_client.setVisibility(View.INVISIBLE);
                 }else{
-                    lv_client.setVisibility(View.INVISIBLE);
+                    lv_client.setVisibility(View.VISIBLE);
                 }
+                break;
         }
     }
 
     /**
      * EventBus消息接收
-     * @param list
+     * @param client
      */
-    public void onEventMainThread(List<List<ProgressEntity>> list){
+    public void onEventMainThread(EventMessageForClient client){
         //更新适配器
-        this.clients = list;
+        this.clients.add(client);
         adapter.notifyDataSetChanged();
     }
 
@@ -176,7 +201,7 @@ public class SendBetweenAppActivity extends BaseActivity implements View.OnClick
                 viewHolder = (ViewHolder)convertView.getTag();
             }
             //设置标题
-            viewHolder.text.setText(clients.get(i).get(0).getTag());
+            viewHolder.text.setText(clients.get(i).getTag());
             return convertView;
         }
 

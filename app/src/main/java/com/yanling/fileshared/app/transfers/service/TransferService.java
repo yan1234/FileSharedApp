@@ -69,7 +69,7 @@ public class TransferService extends Service{
     private Socket socket;
 
     //定义map保存当前连接到的所有客户端的传输进度(key值为当前连接的是第几个client)
-    private List<List<ProgressEntity>> clients;
+    private List<EventMessageForClient> clients;
     //定义连接到的客户端的数量
     private int client_count = 0;
 
@@ -208,8 +208,10 @@ public class TransferService extends Service{
                 //将当前连接添加到列表中
                 clients = new ArrayList<>();
                 client_count ++;
-                SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler("SERVER_APP" + client_count,
-                        socket, new TransferSocketCallback(),
+                //定义当前连接客户端的标记
+                String tag = "Client" + client_count;
+                SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler(tag + client_count,
+                        socket, new TransferSocketCallback(tag),
                         SimpleSocketHandler.FLAG_HANDLER_OUT);
                 File[] files = new File[list.size()];
                 for (int i = 0; i < files.length; i++) {
@@ -241,20 +243,22 @@ public class TransferService extends Service{
             //得到服务端的ip地址(xxx.xxx.xxx.1)
             String remoteIp = ipAddress.substring(0, ipAddress.lastIndexOf(".")) + ".1";
             Log.d(TAG, "远端ip地址为：" + remoteIp);
-            //跳转到进度展示界面
-            Intent intent = new Intent(TransferService.this, ProgressActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
             //开启socket连接
             socket = new Socket(remoteIp, qrcodeInfo.getHostPort());
             //处理socket消息
+            String tag = "Client_App";
             SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler(
-                    "ClientMain", socket, new TransferSocketCallback(), SimpleSocketHandler.FLAG_HANDLER_IN
+                    tag, socket, new TransferSocketCallback(tag), SimpleSocketHandler.FLAG_HANDLER_IN
             );
             //设置接收文件存储路径
             simpleSocketHandler.rootDir = StorageManager.getInstance().getDownload().getPath() + File.separator;
             //开始接收
             new Thread(simpleSocketHandler).start();
+            //跳转到进度展示界面
+            Intent intent = new Intent(TransferService.this, ProgressActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra(Constants.BUNDLE_KEY_CLIENT_TAG, tag);
+            startActivity(intent);
         }
     }
 
@@ -266,8 +270,8 @@ public class TransferService extends Service{
         //定义列表保存进度值
         private List<ProgressEntity> list = new ArrayList<>();
 
-        //定义每一个下载对象的标记
-        private String download_tag;
+        //定义当前连接客户端的tag标记
+        private String tag;
 
         @Override
         public void start(String name, long totalSize, boolean isIn) {
@@ -276,41 +280,20 @@ public class TransferService extends Service{
             ProgressEntity entity = new ProgressEntity();
             entity.setTitle(name);
             entity.setTotalSize(totalSize);
-            //生成该进度实体的标记
-            download_tag = "" + System.currentTimeMillis();
-            entity.setTag(download_tag);
+            entity.setTag("" + System.currentTimeMillis());
             list.add(entity);
             //发布订阅消息到更新界面
-            EventBus.getDefault().post(list);
-
-            if (type_transfer == TYPE_TRANSFER_TO_OTHER_PHONE){
-                //下面是服务端回调展示处理
-                //将当前进度列表添加到map中
-                clients.add(list);
-                //将消息传递到指定的界面
-                EventBus.getDefault().post(clients);
-            }
+            EventBus.getDefault().post(clients);
 
         }
 
         @Override
         public void handlerProgress(String name, long totalSize, long transSize, boolean isIn) {
             Log.d("SocketCallback", "进度值：" + transSize * 100/totalSize);
-            for (ProgressEntity entity : list){
-                //更改对应的进度值(下载标记相同即为相同)
-                if (entity.getTag().equals(download_tag)){
-                    entity.setDownloadSize(transSize);
-                    //发布订阅消息
-                    EventBus.getDefault().post(list);
-                    break;
-                }
-            }
-            if (type_transfer == TYPE_TRANSFER_TO_OTHER_PHONE){
-                //下面是服务端回调展示处理
-                //传递消息到指定的界面
-                EventBus.getDefault().post(clients);
-            }
-
+            //由于下载没有实现多线程，所以每次更新的都是最后一个进度
+            list.get(list.size()-1).setDownloadSize(transSize);
+            //发布订阅消息
+            EventBus.getDefault().post(clients);
         }
 
         @Override
@@ -321,6 +304,20 @@ public class TransferService extends Service{
         @Override
         public void error(Exception e) {
             onError(e);
+        }
+
+        public TransferSocketCallback(String tag){
+            this.tag = tag;
+            //将当前客户端添加到列表中
+            EventMessageForClient client = new EventMessageForClient();
+            client.setTag(tag);
+            client.setList(list);
+            clients.add(client);
+            if (type_transfer == TYPE_TRANSFER_TO_OTHER_PHONE){
+                //下面是服务端回调展示处理
+                //将消息传递到指定的界面
+                EventBus.getDefault().post(client);
+            }
         }
     }
 

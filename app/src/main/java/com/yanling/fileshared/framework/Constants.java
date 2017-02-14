@@ -16,8 +16,11 @@ public class Constants {
     //传输类别的key值
     public static final String BUNDLE_KEY_TRANSFER_TYPE = "transfer_type";
 
+
+    //定义传输给进度展示的客户端的tag
+    public static final String BUNDLE_KEY_CLIENT_TAG = "client_tag";
+
     //定义常量标志wifi名称
     public static final String WIFI_NAME = "FileShare";
-
 
 }
