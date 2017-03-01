@@ -80,4 +80,36 @@ public class Utils {
         return sb.toString();
     }
 
+    /**
+     * 获取kmp算法目标串的next数组（即该串从长度为1-length的前缀和后缀相等的最长公共部分）
+     * @param target，目标字符数组
+     * @return，int[]数组，数组每一位表示当前下标个长度的子串匹配到的长度
+     */
+    public static int[] getNext(char[] target){
+        //定义next数组存储子字符串的长度为i时的前缀和后缀的最长公共部分
+        //由于字符串长度为0没有意义，所以next数组的起始位置为1，标示当前匹配的字符串的长度
+        int[] next = new int[target.length + 1];
+        //设置初始值
+        next[0] = 0;
+        next[1] = 0;
+        //遍历目标数组
+        for (int i = 1; i < target.length; i++){
+            //记录上一个长度的next的值
+            int before_next = next[i+1 - 1];
+            //一步步缩小范围进行迭代
+            //迭代结束有两种情况
+            //1、找到相同的，那么当前字符串的长度比迭代到的长度+1
+            //2、迭代到公共长度为0
+            while (before_next > 0 && target[i] != target[before_next]){
+                before_next = next[before_next];
+            }
+            //判断迭代结束后是否相等，如果相等，则长度+1
+            if (target[i] == target[before_next]){
+                before_next ++;
+            }
+            next[i + 1] = before_next;
+        }
+        return next;
+    }
+
 }

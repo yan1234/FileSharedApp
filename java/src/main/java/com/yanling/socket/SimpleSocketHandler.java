@@ -90,6 +90,11 @@ public class SimpleSocketHandler extends BaseSocketHandler{
         }
     }
 
+    @Override
+    public void onError(Exception e) {
+        callback.error(e);
+    }
+
     /**
      * 写入文件头部信息（主要分为两个部分）
      * 1、前面@param HEADER_SIZE 个字节的头部信息长度

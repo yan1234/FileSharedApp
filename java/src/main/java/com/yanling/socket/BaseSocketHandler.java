@@ -43,11 +43,11 @@ public abstract class BaseSocketHandler implements Runnable{
             handlerInput();
             //处理输出数据
             handlerOutput();
-        }catch (IOException e){
+        }catch (Exception e){
             e.printStackTrace();
-            callback.error(e);
+            //错误处理
+            onError(e);
         }
-
         //关闭
         close();
     }
@@ -74,5 +74,10 @@ public abstract class BaseSocketHandler implements Runnable{
      * 处理输出数据
      */
     public abstract void handlerOutput() throws IOException;
+
+    /**
+     * 错误处理
+     */
+    public abstract void onError(Exception e);
 
 }

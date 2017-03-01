@@ -120,7 +120,9 @@ public class TransferService extends Service{
             }
             isRunning = true;
         }
-        return super.onStartCommand(intent, flags, startId);
+        //return super.onStartCommand(intent, flags, startId);
+        //服务被系统销毁后重新再创建
+        return START_REDELIVER_INTENT;
     }
 
     /**
