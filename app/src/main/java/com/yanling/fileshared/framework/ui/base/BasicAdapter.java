@@ -1,10 +1,14 @@
 package com.yanling.fileshared.framework.ui.base;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
+import android.widget.TextView;
 
+import com.yanling.fileshared.R;
 import com.yanling.fileshared.framework.media.entity.BaseFileInfo;
 
 import java.util.ArrayList;

@@ -153,6 +153,8 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
             }
         };
         mViewPager.setAdapter(mAdapter);
+        //设置左右缓存的页面数量
+        mViewPager.setOffscreenPageLimit(1);
         //为viewPager添加页面改变事件
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

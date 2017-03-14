@@ -32,8 +32,6 @@ public class OtherFragment extends BaseFragment
     //定义文件操作的根目录
     public File root = StorageManager.getInstance().getSystemRoot();
 
-    //定义界面view
-    private View view;
     //定义返回图标
     private ImageView backImageView;
     //定义路径显示文本控件
@@ -45,17 +43,23 @@ public class OtherFragment extends BaseFragment
     //定义当前文件列表的父文件对象(初始值为root目录)
     private File parentFile = root;
 
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        //载入view
-        view = inflater.from(this.getActivity())
-                .inflate(R.layout.fragment_other, null);
-        //初始化界面
+    public void onLoadingData() {
+        //获取根目录的文件列表(这里暂时不获取SD卡）
+        files = FileUtils.getFiles(parentFile);
+        //对文件列表进行排序
+        FileUtils.sortListFile(files);
+    }
+
+    @Override
+    public void setContentView(ViewGroup rootView) {
+        View otherView = LayoutInflater.from(this.getActivity())
+                .inflate(R.layout.fragment_other, rootView, true);
+        //rootView.addView(otherView);
+
         initView();
-        //初始化事件
         initEvent();
-        return view;
     }
 
     /**
@@ -71,10 +75,6 @@ public class OtherFragment extends BaseFragment
      * 初始化事件
      */
     private void initEvent(){
-        //获取根目录的文件列表(这里暂时不获取SD卡）
-        files = FileUtils.getFiles(parentFile);
-        //对文件列表进行排序
-        FileUtils.sortListFile(files);
         //初始化适配器
         adapter = new OtherAdapter(this.getActivity(), files, selectList);
         //绑定适配器
@@ -87,6 +87,9 @@ public class OtherFragment extends BaseFragment
         view.setFocusableInTouchMode(true);
         view.requestFocus();
         view.setOnKeyListener(this);
+
+        //设置数据为空时的显示界面
+        setEmptyView(otherListView);
     }
 
     /**

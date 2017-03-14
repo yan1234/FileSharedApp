@@ -19,26 +19,29 @@ import java.util.List;
  * @author yaning
  * @date 2015-10-16
  */
-            public class VideoFragment extends BaseFragment{
+public class VideoFragment extends BaseFragment{
 
 
-    //定义界面view
-    private View view;
     //定义视频列表
     private ListView videoList = null;
     //定义数据列表
     private List<VideoInfo> videos;
 
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // 加载界面
-        view = inflater.inflate(R.layout.fragment_listview, null);
-        //初始化界面
+    public void onLoadingData() {
+        //得到视频列表
+        videos = MediaManager.getInstance(this.getActivity()).getVideos();
+    }
+
+    @Override
+    public void setContentView(ViewGroup rootView) {
+        View videoView = LayoutInflater.from(this.getActivity())
+                .inflate(R.layout.fragment_listview, rootView, true);
+        //rootView.addView(videoView);
+
         initView();
-        //初始化事件
         initEvent();
-        return view;
     }
 
     /**
@@ -52,11 +55,11 @@ import java.util.List;
      * 初始化事件
      */
     private void initEvent(){
-        //得到视频列表
-        videos = MediaManager.getInstance(this.getActivity()).getVideos();
         adapter = new VideoAdapter(this.getActivity(), videos, selectList);
         //绑定适配器
         videoList.setAdapter(adapter);
+        //设置数据为空时的显示界面
+        setEmptyView(videoList);
     }
 
 }

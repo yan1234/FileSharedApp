@@ -23,8 +23,6 @@ import java.util.List;
  */
 public class MusicFragment extends BaseFragment{
 
-    //定义界面view
-    private View view;
     //定义音乐列表listview
     private ListView musicList = null;
     //定义音乐列表数据
@@ -32,15 +30,18 @@ public class MusicFragment extends BaseFragment{
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        //载入布局view
-        view = inflater.inflate(R.layout.fragment_listview, null);
-        //初始化界面
+    public void onLoadingData() {
+        //取出音乐数据
+        musics = MediaManager.getInstance(this.getActivity()).getMusics();
+    }
+
+    @Override
+    public void setContentView(ViewGroup rootView) {
+        View musicView = LayoutInflater.from(this.getActivity())
+                .inflate(R.layout.fragment_listview, rootView, true);
+
         initView();
-        //初始化事件
         initEvent();
-        return view;
     }
 
     /**
@@ -54,8 +55,6 @@ public class MusicFragment extends BaseFragment{
      * 初始化事件
      */
     private void initEvent(){
-        //取出音乐数据
-        musics = MediaManager.getInstance(this.getActivity()).getMusics();
         //初始化适配器
         adapter = new MusicAdapter(this.getActivity(), musics, selectList);
         //绑定适配器

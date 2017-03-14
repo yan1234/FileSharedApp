@@ -24,8 +24,6 @@ import java.util.List;
  */
 public class PhotoFragment extends BaseFragment {
 
-    //定义界面的view对象
-    private View view;
     //定义图片list
     private ListView photoList;
     //定义适配器
@@ -37,17 +35,24 @@ public class PhotoFragment extends BaseFragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        //加载布局
-        view = inflater.inflate(R.layout.fragment_listview, null);
-        //初始化界面
-        initView();
-        //初始化事件
-        initEvent();
-        return view;
+    public void onLoadingData() {
+        //得到系统中的图片
+        photos = MediaManager.getInstance(this.getActivity()).getImages();
+        //这里为了简便，直接在获取图片操作后取得了目录
+        //所以一定要在获取图片后再取目录
+        bucketNames = MediaManager.getInstance(this.getActivity()).getImageBucketNames();
+
     }
 
+    @Override
+    public void setContentView(ViewGroup rootView) {
+        View photoView = LayoutInflater.from(this.getActivity())
+                .inflate(R.layout.fragment_listview, rootView, true);
+        //rootView.addView(photoView);
+
+        initView();
+        initEvent();
+    }
 
     /**
      * 初始化界面
@@ -60,11 +65,6 @@ public class PhotoFragment extends BaseFragment {
      * 初始化事件
      */
     private void initEvent(){
-        //得到系统中的图片
-        photos = MediaManager.getInstance(this.getActivity()).getImages();
-        //这里为了简便，直接在获取图片操作后取得了目录
-        //所以一定要在获取图片后再取目录
-        bucketNames = MediaManager.getInstance(this.getActivity()).getImageBucketNames();
         //初始化适配器
         adapter = new PhotoAdapter(this.getActivity(), photos,bucketNames, selectList);
         //将适配器绑定到listview中
