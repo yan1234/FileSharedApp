@@ -6,11 +6,4 @@
     <!-- 页面头部 -->
     <include layout="@layout/activity_header"></include>
 
-    <Button
-        android:id="@+id/activity_transfer_select_android"
-        android:layout_height="50dp"
-        android:layout_width="200dp"
-        android:text="Android互传">
-
-    </Button>
 </LinearLayout>

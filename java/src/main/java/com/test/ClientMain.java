@@ -17,8 +17,8 @@ import java.util.Arrays;
 public class ClientMain {
 
     public static void main(String[] args){
-        /*try {
-            Socket socket = new Socket("10.226.172.159", 57849);
+        try {
+            Socket socket = new Socket("10.226.174.15", 59399);
             SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler(
                 "ClientMain", socket, cb, SimpleSocketHandler.FLAG_HANDLER_IN
             );
@@ -26,9 +26,9 @@ public class ClientMain {
             new Thread(simpleSocketHandler).start();
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
-        File file = new File("/home/yanling/tmp");
-        System.out.println(file.getParentFile().getName());
+        }
+        /*File file = new File("/home/yanling/tmp");
+        System.out.println(file.getParentFile().getName());*/
     }
 
     private static SocketCallback cb = new SocketCallback() {

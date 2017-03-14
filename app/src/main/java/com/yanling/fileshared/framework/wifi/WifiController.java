@@ -191,4 +191,13 @@ public class WifiController {
     public boolean isWifiConnected(){
         return wifiManager.isWifiEnabled();
     }
+
+    /**
+     * 获取当前连接的wifi信息
+     * 注意这里获取的SSID会多一对双引号""SSID""
+     * @return
+     */
+    public WifiInfo getWifiInfo(){
+        return wifiManager.getConnectionInfo();
+    }
 }

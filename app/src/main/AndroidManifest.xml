@@ -53,6 +53,13 @@
             android:name=".app.HomeMainActivity"
             android:label="@string/title_activity_home_main" >
         </activity>
+
+        <!-- 传输服务初始化界面 -->
+        <activity
+            android:name=".app.transfers.TransferInitActivity">
+
+        </activity>
+
         <!-- 传输条码信息展示页 -->
         <activity
             android:name=".app.transfers.android.SendBetweenAppActivity"

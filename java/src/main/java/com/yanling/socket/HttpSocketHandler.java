@@ -67,6 +67,12 @@ public class HttpSocketHandler extends BaseSocketHandler{
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, charset_http_read)); //Charset.forName("ISO-8859-1")
         //解析http协议的startline(即第一行内容)
         String firstLine = bufferedReader.readLine();
+        /**
+         * 这里不知道为什么一次http请求会进来两次，加一个非空判断
+         */
+        if (firstLine == null || "".equals(firstLine)){
+            return;
+        }
         //如果解析出来是startline不是上传数据操作，则后续不需要解析，直接跳转到输出处理
         if (!parseRequestStartLine(firstLine)) {
             //处理上传数据

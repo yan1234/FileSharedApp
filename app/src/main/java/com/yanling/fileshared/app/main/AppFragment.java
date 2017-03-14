@@ -1,6 +1,7 @@
 package com.yanling.fileshared.app.main;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,17 +36,22 @@ public class AppFragment extends BaseFragment implements AdapterView.OnItemLongC
     //定义列表保存系统的app列表信息
     private List<AppInfo> appInfos;
 
+
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        //加载布局
-        view = inflater.inflate(R.layout.fragment_app, null);
-        //初始化界面
-        initView();
-        //初始化事件
-        initEvent();
-        return view;
+    public void onLoadingData(){
+        //获取手机上安装的app信息
+        getAppInfos();
     }
+
+    @Override
+    public void setContentView(ViewGroup rootView){
+        View appView = LayoutInflater.from(this.getActivity())
+                .inflate(R.layout.fragment_app, rootView, true);
+        initView();
+        initEvent();
+    }
+
 
     /**
      * 初始化界面
@@ -58,8 +64,6 @@ public class AppFragment extends BaseFragment implements AdapterView.OnItemLongC
      * 初始化事件
      */
     private void initEvent(){
-        //获取手机上安装的app信息
-        getAppInfos();
         //初始化适配器
         adapter = new AppAdapter(this.getActivity(), appInfos, selectList);
         //绑定适配器

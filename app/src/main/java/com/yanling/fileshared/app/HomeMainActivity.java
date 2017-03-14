@@ -20,6 +20,7 @@ import com.yanling.fileshared.app.main.MusicFragment;
 import com.yanling.fileshared.app.main.OtherFragment;
 import com.yanling.fileshared.app.main.PhotoFragment;
 import com.yanling.fileshared.app.main.VideoFragment;
+import com.yanling.fileshared.app.transfers.TransferInitActivity;
 import com.yanling.fileshared.app.transfers.android.SendBetweenAppActivity;
 import com.yanling.fileshared.app.transfers.TransferShowActivity;
 import com.yanling.fileshared.app.transfers.android.entity.QrcodeInfo;
@@ -38,7 +39,8 @@ import java.util.List;
  * @author yanling
  * @date 2015-10-15
  */
-public class HomeMainActivity extends FragmentActivity implements View.OnClickListener{
+public class HomeMainActivity extends FragmentActivity
+        implements View.OnClickListener, View.OnLongClickListener{
 
     //定义头部的左右操作按钮
     private ImageView header_left;
@@ -140,6 +142,16 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
         bottom_middle.setOnClickListener(this);
         bottom_right.setOnClickListener(this);
 
+        /**
+         * 设置传输服务长按取消事件
+         */
+        bottom_middle.setOnLongClickListener(this);
+
+        //根据传输服务运行的状态判断显示的图标
+        if (TransferService.isRunning){
+            ((ImageView)bottom_middle).setImageResource(R.mipmap.bg_transfer);
+        }
+
         //添加绑定适配器
         mAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -153,6 +165,8 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
             }
         };
         mViewPager.setAdapter(mAdapter);
+        //设置左右缓存的页面数量
+        mViewPager.setOffscreenPageLimit(1);
         //为viewPager添加页面改变事件
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -222,6 +236,17 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
                 break;
 
         }
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        switch (v.getId()){
+            case R.id.home_main_bottom_middle:
+                //弹出关闭服务的弹框
+                showCloseTransferDialog();
+                break;
+        }
+        return false;
     }
 
     /**
@@ -322,6 +347,7 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
                     //开启服务
                     startTransferService(bundle);
                 }
+                dialogInterface.dismiss();
             }
         });
         AlertDialog dialog = builder.create();
@@ -330,13 +356,49 @@ public class HomeMainActivity extends FragmentActivity implements View.OnClickLi
     }
 
     /**
+     * 展示关闭服务的确认弹框
+     */
+    private void showCloseTransferDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(HomeMainActivity.this);
+        builder.setTitle("确定要关闭传输服务吗?");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //关闭服务
+                stopTransferService();
+                //调整图标
+                ((ImageView)bottom_middle).setImageResource(R.mipmap.bg_upload);
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //关闭弹框
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    /**
      * 开启传输服务
      * @param bundle，代传递的bundle信息
      */
     private void startTransferService(Bundle bundle){
-        Intent intent = new Intent(HomeMainActivity.this, TransferService.class);
+        Intent intent = new Intent(HomeMainActivity.this, TransferInitActivity.class);
         intent.putExtras(bundle);
-        startService(intent);
+        startActivity(intent);
+    }
+
+    /**
+     * 关闭传输服务
+     */
+    private void stopTransferService(){
+        Intent intent = new Intent(HomeMainActivity.this, TransferService.class);
+        stopService(intent);
     }
 
 }
