@@ -1,129 +1,243 @@
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="user-scale=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
-    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src &#39;self&#39; &#39;unsafe-inline&#39;; script-src &#39;self&#39; &#39;unsafe-inline&#39; &#39;unsafe-eval&#39;">
-    <meta name="format-detection" content="telephone=no">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="user-scale=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
     <title>文件共享助手-上传</title>
     <style>
-        * {
-        font-family: '微软雅黑' !important;
+    	/**
+    	 *定义全局字体
+    	 */
+    	* {
+            font-family: '微软雅黑' !important;
         }
 
-        .text-center {
-        text-align: center
+        .div_parent{
+        		width: 70%;
+        		text-align: center;
+        		margin: 0 auto;
+        		padding: 10px;
         }
 
-        .fb-annex {
-        background-color: #F8F8F8;
-        line-height: 55px;
-        border: 1px solid #DDDDDD;
-        width: 55px;
-        height: 55px;
+        .div_top{
+        		border: 0px solid;
+        		margin-top: 8%;
+        		height: 40%;
+						overflow: auto;
         }
 
-        .file {
-        position: relative;
-        display: inline-block;
-        overflow: hidden;
-        text-decoration: none;
-        text-indent: 0;
-        line-height: 20px;
+        .file_select{
+        		text-align: center;
+        		background-color: #F8F8F8;
+            line-height: 55px;
+            border: 1px solid #DDDDDD;
+            width: 55px;
+            height: 55px;
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            text-decoration: none;
+            text-indent: 0;
+            line-height: 20px;
+            margin-top: 8px;
         }
 
-        .file input {
-        position: absolute;
-        font-size: 100px;
-        right: 0;
-        top: 0;
-        opacity: 0;
+        .submit{
+        		background-color: #444444;
+            color: #fff;
+            font-size: 16px;
+            height: 40px;
+            border: 0px;
         }
 
-        .fb-annex-i {
-        color: #DDDDDD;
-        font-size: 60px;
-        }
+        #ul li {
+						float:left;
+						list-style:none;
+				}
 
-        .button.button-ddd {
-        background-color: #444444;
-        color: #fff;
-        font-size: 16px;
-        height: 40px;
-        border: 0px;
-        }
+				td {
+						height: 30px;
+						padding: 8px;
+				}
     </style>
     <script type="text/javascript">
-    	//定义图片类型
-	    //var rFilter = /^(image\/bmp|image\/gif|image\/jpeg|image\/png|image\/tiff)$/i;
-	    var file=null;
-	    function onFileSelect() {
-	        file = document.getElementById("file").files[0];
-	        document.getElementById("fileName").innerText=file.name;
-	    }
-	    /*function upload() {
-	        //var a = rFilter.test(file.type);
-	        //alert(a + "------[true:是图片  false:不是图片]");
-	        //判断是否选中文件
-	        if (file == null){
-	        	alert("请选择一个文件上传");
-	        	return false;
-	        }else{
-	        	var form = document.getElementById("form");
-	        	form.submit();
-	        	return true;
-	        }
-	    }*/
-	    function upload(){
-	    	//定义上传对象
-	    	var xhr = new XMLHttpRequest();
-	    	//获取待上传的多个文件列表
-	    	var fileList = document.getElementById("file").files;
-	    	//定义formData
-	    	var formData = new FormData();
-	    	//遍历添加到formData
-	    	for (var i = 0; i < fileList.length; i++){
-	    		formData.append("file", fileList[i]);
-	    	}
-	    	//监听事件
-    		xhr.upload.addEventListener("progress", onprogress, false);
-    		xhr.addEventListener("error", onerror, false);//发送文件和表单自定义参数
-    		xhr.open("POST", "/fileUpload");
-    		//记得加入上传数据formData
-　　 		xhr.send(formData);
-	    }
+			//定义当前进度条设计的长宽
+			progressWidth = 200;
+			progressHeight = 15;
+			//定义键值对保存当前所有文件对象
+			files = {};
+			//定义当前请求队列
+			xhrs = {};
 
-	    function onprogress(evt){
-	    	var loaded = evt.loaded;                         //已经上传大小情况
-   			var tot = evt.total;                            //附件总大小
-   			console.log(loaded + "/" + tot);
-	    }
+    	//将当前选择的文件添加到上传队列
+    	function add(){
+    		//获取选择的多个文件
+    		var fileList = document.getElementById("file").files;
+    		var table = document.getElementById("table");
+				var title = document.getElementById("title");
+				//显示标题
+				title.hidden = false;
+    		//将文件展示出来
+    		for (var i=0;  i< fileList.length; i++){
+    			//files.push(fileList[i]);
+					//获取当前时间戳
+					var key = "key" + new Date().valueOf();
+					//保存文件对象
+					files[key] = fileList[i];
+    			//在表格的下一行插入内容
+    			var row = table.insertRow(table.length);
+    			//插入第一个单元格（文件名）
+    			var cell0 = row.insertCell(0);
+    			cell0.innerText = fileList[i].name;
+    			//插入第二个单元格（进度条）
+    			var cell1 = row.insertCell(1);
+    			cell1.innerHTML = "<canvas width='300px' height='15px' id='"+key+"'></canvas>"
+    			//插入第三个单元格（取消按钮）
+    			var cell2 = row.insertCell(2);
+    			cell2.innerHTML = "<button onclick='cancel(\"" +key+ "\");'>取消</button>";
+    			//初始化canvas
+    			var canvas = document.getElementById(key);
+    			showProgress(canvas, progressWidth, progressHeight, 0);
+    		}
+    	}
+			//执行上传操作
+    	function upload(){
+				//遍历files对象的所有属性(时间戳)
+				for (var key in files){
+						var doUpload = function(key){
+							var xhr = new XMLHttpRequest();
+							var formData = new FormData();
+							formData.append("file", files[key]);
+							xhr.upload.addEventListener("progress", function(evt){
+								//获取进度值
+								var loaded = evt.loaded;                         //已经上传大小情况
+								var tot = evt.total;                            //附件总大小
+								console.log(loaded + "/" + tot);
+								//更新进度值
+								var canvas = document.getElementById(key);
+								showProgress(canvas, progressWidth, progressHeight, Math.round(loaded/tot * 100));
+							}, false);
+							xhr.addEventListener("error", function(evt){
+								alert(evt);
+							}, false);
+							xhr.open("POST", "/fileUpload");
+							xhr.send(formData);
+							//将当前请求对象放入队列中
+							xhrs[key] = xhr;
+						}(key);
+				}
+    	}
 
-	    function onerror(evt){
-	    	alert("上传失败");
-	    }
-
+			function cancel(key){
+					//执行结束函数
+					if (xhrs[key] != undefined){
+						xhrs[key].abort();
+						xhrs[key] = null;
+						//删除该请求节点
+						delete xhrs.key;
+					}
+					//删除该行
+					var canvas = document.getElementById(key);
+					var tr = canvas.parentNode.parentNode;
+					tr.parentNode.removeChild(tr);
+					//删除该文件对象
+					files[key] = null;
+					delete files.key;
+			}
     </script>
 </head>
 <body>
-<div>
-    <!--选择文件-->
-    <div style="text-align: center;margin-top: 15%;">
-        <div class="text-center fb-annex file" ng-click="choiceAnnex()">
-            <div>
-                <div style="float: left;width: 60%;height:3px;margin-top: 26px;margin-left: 12px;background-color: #dddddd;"></div>
-                <div style="float: left;position:absolute;width: 3px;height:60%;margin-left: 26px;margin-top: 12px;background-color: #dddddd;"></div>
-            </div>
-            <input type="file" onchange="onFileSelect()" id="file" name="file" multiple="multiple" />
-        </div>
-    </div>
-    <p id="fileName" style="text-align: center;color: #444444">[文件]</p>
-
-    <!--提交-->
-    <div style="padding-top: 20px;width: 100%;text-align: center;">
-        <button style="width: 300px;" class="button button-ddd" onclick="return upload();">
-            提交
-        </button>
-    </div>
-</div>
+	<div class="div_parent">
+		<div class="div_top">
+			<!-- 每一项的文件上传情况 -->
+			<div>
+				<h3 id = "title" hidden="hidden">上传列表</h3>
+				<table id = "table" align="center">
+				</table>
+			</div>
+		</div>
+		<div class="div_bottom">
+			<!-- 自定义上传按钮 -->
+			<div>
+				<label class = "file_select" for="file">
+					<div>
+              <div style="float: left;width: 60%;height:3px;margin-top: 26px;margin-left: 12px;background-color: #dddddd;"></div>
+              <div style="float: left;position:absolute;width: 3px;height:60%;margin-left: 26px;margin-top: 12px;background-color: #dddddd;"></div>
+          </div>
+				</label>
+				<input type="file" name="file" id="file" multiple="true" hidden="true" onchange="add();">
+			</div>
+			<p>添加文件</p>
+			<!-- 提交 -->
+			<div style="padding-top: 20px;width: 100%;text-align: center;">
+        		<button style="width: 300px;" class="submit" onclick="upload();">提交</button>
+    		</div>
+		</div>
+	</div>
 </body>
+	<script type="text/javascript">
+		/**
+		 * 展示进度值
+		 * @param canvas, canvas标签对象
+		 * @param width, 展示的进度条的长度
+		 * @param height, 展示的进度条的高度，默认用10px显示效果较好
+		 * @param progress, 当前显示的进度值(0-100的整数)
+		 */
+		function showProgress(canvas, width, height, progress){
+			//获取画布对象
+			var ctx = canvas.getContext("2d");
+			//定义加载和未加载的颜色样式
+			var reached_style = "#66CD00";
+			var unreached_style = "#F0F0F0";
+			//这里定义做半边圆和有半边圆的半径为高度height的一般
+			var cycle_r = height /2;
+
+			//定义填充样式
+			if (progress == 0){
+				//进度为0，使用初始的颜色填充
+				ctx.fillStyle = unreached_style;
+			}else{
+				ctx.fillStyle = reached_style;
+			}
+			//绘制左半边圆弧
+			ctx.beginPath();
+			ctx.arc(cycle_r, cycle_r, cycle_r, 0.5*Math.PI, 1.5*Math.PI);
+			ctx.fill();
+			ctx.closePath();
+
+			//绘制加载的矩形，根据进度计算加载的长度
+			var reached_width = width / 100 * progress;
+			ctx.beginPath();
+			ctx.fillStyle = reached_style;
+			ctx.fillRect(cycle_r, 0, reached_width, height);
+			ctx.closePath();
+
+			//绘制未加载的矩形
+			var unreached_width = width - reached_width;
+			ctx.beginPath();
+			ctx.fillStyle = unreached_style;
+			ctx.fillRect(cycle_r+reached_width, 0, unreached_width, height);
+			ctx.closePath();
+
+			//绘制右半边圆
+			if (progress == 100){
+				ctx.fillStyle = reached_style;
+			}else{
+				ctx.fillStyle = unreached_style;
+			}
+			ctx.beginPath();
+			ctx.arc(cycle_r+width, cycle_r, cycle_r, 1.5*Math.PI, 0.5*Math.PI);
+			ctx.fill();
+			ctx.closePath();
+
+			//绘制右边的文字
+			//首先清除之前的文字印记
+			ctx.clearRect(width+height, 0, 50, height);
+			//重新绘制文本
+			//设置字体和大小
+			ctx.font = "15px Arial";
+			ctx.textBaseline = "middle";
+			ctx.fillStyle = reached_style;
+			ctx.fillText(progress+"%", width+height+5, cycle_r);
+		}
+	</script>
 </html>

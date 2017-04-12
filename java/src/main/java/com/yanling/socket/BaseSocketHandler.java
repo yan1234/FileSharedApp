@@ -41,8 +41,10 @@ public abstract class BaseSocketHandler implements Runnable{
         try{
             //处理输入数据
             handlerInput();
-            //处理输出数据
-            handlerOutput();
+            if (socket != null){
+                //处理输出数据
+                handlerOutput();
+            }
         }catch (Exception e){
             e.printStackTrace();
             //错误处理

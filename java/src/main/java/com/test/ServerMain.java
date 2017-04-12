@@ -1,7 +1,6 @@
 package com.test;
 
 import com.yanling.socket.HttpSocketHandler;
-import com.yanling.socket.SimpleSocketHandler;
 import com.yanling.socket.SocketCallback;
 import com.yanling.socket.SocketManager;
 
@@ -10,10 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
 
 /**
  * 服务端主程序
@@ -50,10 +47,10 @@ public class ServerMain {
     }
 
     public static void testReadResources(){
-        /*URL fileUrl = ServerMain.class.getResource("/upload.html");
+        /*URL fileUrl = ServerMain.class.getResource("/upload.bak.html");
         System.out.println(fileUrl.getFile());*/
         try{
-            InputStream is = ServerMain.class.getResourceAsStream("/upload.html");
+            InputStream is = ServerMain.class.getResourceAsStream("/upload.bak.html");
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String tmp = "";
             while ((tmp = br.readLine()) != null){

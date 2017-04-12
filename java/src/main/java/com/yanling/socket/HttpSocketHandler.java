@@ -126,14 +126,18 @@ public class HttpSocketHandler extends BaseSocketHandler{
         //处理错误回调
         callback.error(e);
         try{
+            //关闭输入输出流
+            if (in != null){
+                in.close();
+            }
             //发送错误页面提示
             if (out != null){
                 responseMessage("text/plain;charset=UTF-8", "Error");
             }
+
         }catch (IOException e1){
             e.printStackTrace();
         }
-
     }
 
     private void responseMessage(String content_type, String message) throws IOException{
@@ -213,7 +217,7 @@ public class HttpSocketHandler extends BaseSocketHandler{
     private String getUploadPage() throws IOException{
         StringBuilder sb = new StringBuilder();
         //获取jar包中的html资源
-        InputStream inputStream = this.getClass().getResourceAsStream("/test.html");
+        InputStream inputStream = this.getClass().getResourceAsStream(UPLOAD_PAGE);
         //下面输出具体的html文件内容
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
         String str = "";
@@ -301,7 +305,7 @@ public class HttpSocketHandler extends BaseSocketHandler{
      */
     private void showUploadPage() throws IOException{
         //获取jar包中的html资源
-        InputStream inputStream = this.getClass().getResourceAsStream("/upload.html");
+        InputStream inputStream = this.getClass().getResourceAsStream("/upload.bak.html");
         //定义输入输出流
         PrintStream ps = new PrintStream(out);
         //首先输出响应头
@@ -387,8 +391,18 @@ public class HttpSocketHandler extends BaseSocketHandler{
             //开始进行上传监控操作
             callback.start(fileName, content_length, true);
             while (true){
+                //判断下输入流是否结束
+                char eof = (char)bufferedReader.read();
+                if (eof == '\uFFFF'){
+                    //结束遍历
+                    read_length = content_length;
+                    System.out.println("数据接收中断");
+                    onError(new Exception("数据接收中断"));
+                    break;
+                }
                 //读取指定的长度(包含上一次匹配剩余的)进行模式匹配
-                bufferedReader.read(line_buff, match_length, target_boundary_array.length-match_length);
+                line_buff[match_length] = eof;
+                bufferedReader.read(line_buff, match_length+1, target_boundary_array.length-match_length-1);
                 //记录读取长度
                 read_length += target_boundary_array.length - match_length;
                 //利用kmp算法,从上次匹配结束的地方开始继续匹配
