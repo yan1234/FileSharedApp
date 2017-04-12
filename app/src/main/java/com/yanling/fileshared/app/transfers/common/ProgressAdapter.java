@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.yanling.fileshared.R;
 import com.yanling.android.view.progress.NumberProgressView;
+import com.yanling.fileshared.framework.ui.icon.ResourceManager;
 
 import java.util.List;
 
@@ -59,7 +60,12 @@ public class ProgressAdapter extends BaseAdapter{
         }else{
             viewHolder = (ViewHolder)convertView.getTag();
         }
-        viewHolder.icon.setImageBitmap(list.get(i).getIcon());
+        if (list.get(i).getIcon() != null){
+            viewHolder.icon.setImageBitmap(list.get(i).getIcon());
+        }else{
+            //通过文件类型设置标题
+            viewHolder.icon.setImageResource(ResourceManager.getIconType(mContext, list.get(i).getTitle()));
+        }
         viewHolder.title.setText(list.get(i).getTitle());
         int progress = (int)(100 * list.get(i).getDownloadSize() / list.get(i).getTotalSize());
         viewHolder.progressView.setProgress(progress);

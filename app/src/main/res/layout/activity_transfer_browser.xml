@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/activity_header"></include>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <!-- 第一步, 连上wifi热点-->
+        <TextView
+            style="@style/browser_tv"
+            android:text="1. 将你的电脑连接到WIFI网络"/>
+        <TextView
+            android:id="@+id/activity_browser_tv_connect_wifi"
+            style="@style/browser_tv"
+            android:layout_marginLeft="8dp"
+            android:textColor="@color/material_blue_grey_950"
+            android:text="名称：xxx, 密码：xxx"/>
+
+        <!-- 第二步, 打开浏览器-->
+
+        <TextView
+            style="@style/browser_tv"
+            android:text="2. 在电脑上打开浏览器"></TextView>
+
+
+        <!-- 第三步, 下载文件 -->
+        <TextView
+            style="@style/browser_tv"
+            android:text="3. 如需下载文件, 请输入以下url链接"/>
+        <TextView
+            android:id="@+id/activity_browser_tv_download"
+            style="@style/browser_tv"
+            android:layout_marginLeft="8dp"
+            android:textColor="@color/material_blue_grey_950"
+            android:text="http://192.168.43.1:xxx/download.html" />
+
+        <!-- 第四步,　上传文件　-->
+        <TextView
+            style="@style/browser_tv"
+            android:text="4. 如需上传文件, 请输入以下url链接"/>
+        <TextView
+            android:id="@+id/activity_browser_tv_upload"
+            style="@style/browser_tv"
+            android:layout_marginLeft="8dp"
+            android:textColor="@color/material_blue_grey_950"
+            android:text="http://192.168.43.1:xxx/upload.html"/>
+
+    </LinearLayout>
+
+</LinearLayout>

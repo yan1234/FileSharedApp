@@ -65,11 +65,9 @@
             android:name=".app.transfers.android.SendBetweenAppActivity"
             android:label="@string/title_activity_send_show" >
         </activity>
+        <!--　与浏览器端传输界面　-->
+        <activity android:name=".app.transfers.browser.TransferBtBrowserActivity"></activity>
         <!-- 文件传输进度展示页 -->
-        <activity
-            android:name=".app.transfers.TransferShowActivity"
-            android:label="@string/title_activity_transfer_show" >
-        </activity>
         <!-- 传输进度展示页面 -->
         <activity
             android:name=".app.transfers.common.ProgressActivity">

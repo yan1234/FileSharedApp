@@ -69,6 +69,11 @@ public class TransferInitActivity extends BaseActivity{
         qrcodeInfo = new QrcodeInfo();
         //随机生成端口号
         qrcodeInfo.setHostPort(new Random().nextInt(10000) + 50000);
+        //初始化热点名称
+        String ssid = Constants.WIFI_NAME + qrcodeInfo.getHostPort();
+        //设置wifi的名称和密码
+        qrcodeInfo.setSsid(ssid);
+        qrcodeInfo.setPreSharedKey(ssid);
         execOperate(bundle);
     }
 
@@ -86,10 +91,6 @@ public class TransferInitActivity extends BaseActivity{
                 //封装文件列表信息
                 qrcodeInfo.setFiles(list);
                 //开启wifi热点
-                //设置wifi的名称和密码
-                String ssid = Constants.WIFI_NAME + qrcodeInfo.getHostPort();
-                qrcodeInfo.setSsid(ssid);
-                qrcodeInfo.setPreSharedKey(ssid);
                 //开启线程执行wifi热点开启操作
                 startWifiAp();
                 break;
@@ -106,15 +107,13 @@ public class TransferInitActivity extends BaseActivity{
                 //获取待发送的文件列表
                 List<BaseFileInfo> list1 = (List<BaseFileInfo>)bundle.getSerializable(Constants.BUNDLE_KEY_TRANSFER);
                 qrcodeInfo.setFiles(list1);
-                //开启服务
-                startTransferService();
-                this.finish();
+                //开启wifi热点
+                startWifiAp();
                 break;
             //从浏览器接收文件
             case TransferService.TYPE_TRANSFER_FROM_PC:
-                //直接开启服务
-                startTransferService();
-                this.finish();
+                //开启wifi热点
+                startWifiAp();
                 break;
         }
     }
@@ -200,11 +199,13 @@ public class TransferInitActivity extends BaseActivity{
                         isConnect = true;
                     }
                 }
-                //这里连接上wifi后等待一会,便于后面的wifi连接地址的获取
-                try {
-                    Thread.sleep(3 * 1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                //判断下地址获取是否正确
+                while(wifiController.getWifiAddress().equals("0.0.0.0")){
+                    try {
+                        Thread.sleep(2 * 1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 //连接成功后发送成功回调
                 handler.sendEmptyMessage(0);

@@ -2,6 +2,7 @@ package com.yanling.fileshared.app.transfers.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.widget.Toast;
 
 import com.yanling.fileshared.app.transfers.android.SendBetweenAppActivity;
 import com.yanling.fileshared.app.transfers.android.entity.QrcodeInfo;
+import com.yanling.fileshared.app.transfers.browser.TransferBtBrowserActivity;
 import com.yanling.fileshared.app.transfers.common.ProgressActivity;
 import com.yanling.fileshared.app.transfers.common.ProgressEntity;
 import com.yanling.fileshared.framework.Constants;
@@ -132,7 +134,7 @@ public class TransferService extends Service{
             //跳转到与浏览器交互界面
             case TYPE_TRANSFER_TO_PC:
             case TYPE_TRANSFER_FROM_PC:
-                Intent intent2 = new Intent(TransferService.this, SendBetweenAppActivity.class);
+                Intent intent2 = new Intent(TransferService.this, TransferBtBrowserActivity.class);
                 intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 Bundle bundle2 = new Bundle();
                 bundle2.putSerializable(Constants.BUNDLE_KEY_QRCODEINFO, qrcodeInfo);
@@ -178,7 +180,7 @@ public class TransferService extends Service{
                 //定义当前连接客户端的标记
                 String tag = "Client" + client_count;
                 SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler(tag + client_count,
-                        socket, new TransferSocketCallback(tag),
+                        socket, new TransferCallbackBetweenPhone(tag),
                         SimpleSocketHandler.FLAG_HANDLER_OUT);
                 File[] files = new File[qrcodeInfo.getFiles().size()];
                 for (int i = 0; i < files.length; i++) {
@@ -202,12 +204,13 @@ public class TransferService extends Service{
             //得到服务端的ip地址(xxx.xxx.xxx.1)
             String remoteIp = ipAddress.substring(0, ipAddress.lastIndexOf(".")) + ".1";
             Log.d(TAG, "远端ip地址为：" + remoteIp);
+
             //开启socket连接
             socket = new Socket(remoteIp, qrcodeInfo.getHostPort());
             //处理socket消息
             String tag = "Client_App";
             SimpleSocketHandler simpleSocketHandler = new SimpleSocketHandler(
-                    tag, socket, new TransferSocketCallback(tag), SimpleSocketHandler.FLAG_HANDLER_IN
+                    tag, socket, new TransferCallbackBetweenPhone(tag), SimpleSocketHandler.FLAG_HANDLER_IN
             );
             //设置接收文件存储路径
             simpleSocketHandler.rootDir = StorageManager.getInstance().getDownload().getPath() + File.separator;
@@ -233,7 +236,7 @@ public class TransferService extends Service{
                     //定义当前连接客户端的标记
                     String tag = "Client" + client_count;
                     HttpSocketHandler httpSocketHandler = new HttpSocketHandler(tag + client_count,
-                            socket, new TransferSocketCallback(tag));
+                            socket, new TransferCallbackBetweenBrowser());
                     File[] files = new File[qrcodeInfo.getFiles().size()];
                     for (int i = 0; i < files.length; i++) {
                         File file = new File(qrcodeInfo.getFiles().get(i).getPath());
@@ -255,61 +258,93 @@ public class TransferService extends Service{
     }
 
     /**
-     * 实现传输进度的socket回调
+     * 定义手机之间传输回调
      */
-    class TransferSocketCallback implements SocketCallback{
+    class TransferCallbackBetweenPhone implements SocketCallback{
 
-        //定义列表保存进度值
-        private List<ProgressEntity> list = new ArrayList<>();
+        //定义当前连接的Socket对象
+        private EventMessageForClient client;
 
-        //定义当前连接客户端的tag标记
-        private String tag;
+        public TransferCallbackBetweenPhone(String tag){
+            //初始化对象
+            client = new EventMessageForClient();
+            List<ProgressEntity> progressEntities = new ArrayList<>();
+            //设置客户端标记
+            client.setTag(tag);
+            //添加进度列表
+            client.setList(progressEntities);
+            //记录当前客户端
+            clients.add(client);
+        }
 
         @Override
         public void start(String name, long totalSize, boolean isIn) {
             Log.d("SocketCallback", "开始传输：" + name);
+            //定义传输的文件名
+            String fileName = name;
+            //这里用已安装APP名称替换apk的名称
+            for (int i=0; i < qrcodeInfo.getFiles().size(); i++){
+                if (qrcodeInfo.getFiles().get(i).getSize() == totalSize
+                        && qrcodeInfo.getFiles().get(i).getPath().endsWith(name)){
+                    //匹配成功
+                    fileName = qrcodeInfo.getFiles().get(i).getName();
+                    break;
+                }
+            }
             //这里表示新的数据传输
             ProgressEntity entity = new ProgressEntity();
-            entity.setTitle(name);
+            entity.setTitle(fileName);
             entity.setTotalSize(totalSize);
             entity.setTag("" + System.currentTimeMillis());
-            list.add(entity);
-            //发布订阅消息到更新界面
-            EventBus.getDefault().post(clients);
-
+            //添加进度条到列表
+            client.getList().add(entity);
         }
 
         @Override
         public void handlerProgress(String name, long totalSize, long transSize, boolean isIn) {
             Log.d("SocketCallback", "进度值：" + transSize * 100/totalSize);
             //由于下载没有实现多线程，所以每次更新的都是最后一个进度
-            list.get(list.size()-1).setDownloadSize(transSize);
-            //发布订阅消息
-            EventBus.getDefault().post(clients);
+            client.getList().get(client.getList().size()-1).setDownloadSize(transSize);
+            if (type_transfer == TYPE_TRANSFER_TO_OTHER_PHONE){
+                //发布订阅消息(表示是服务端数据发送)
+                EventBus.getDefault().post(clients);
+            }else if (type_transfer == TYPE_TRANSFER_FROM_OTHER_PHONE){
+                //发布订阅消息(表示是客户端数据接收)
+                EventBus.getDefault().post(client);
+            }
         }
 
         @Override
         public void end(String name, boolean isIn) {
-            Log.d("SocketCallback", "结束传输：" + name);
+            Log.d("SocketCallback", "结束当前文件传输：" + name);
         }
 
         @Override
         public void error(Exception e) {
             onError(e);
         }
+    }
 
-        public TransferSocketCallback(String tag){
-            this.tag = tag;
-            //将当前客户端添加到列表中
-            EventMessageForClient client = new EventMessageForClient();
-            client.setTag(tag);
-            client.setList(list);
-            clients.add(client);
-            if (type_transfer == TYPE_TRANSFER_TO_OTHER_PHONE){
-                //下面是服务端回调展示处理
-                //将消息传递到指定的界面
-                EventBus.getDefault().post(client);
-            }
+    class TransferCallbackBetweenBrowser implements SocketCallback{
+
+        @Override
+        public void start(String name, long totalSize, boolean isIn) {
+            Log.d("SocketCallback", "开始传输文件:"+name);
+        }
+
+        @Override
+        public void handlerProgress(String name, long totalSize, long transSize, boolean isIn) {
+            Log.d("SocketCallback", "进度值：" + transSize * 100/totalSize);
+        }
+
+        @Override
+        public void end(String name, boolean isIn) {
+            Log.d("SocketCallback", "结束传输");
+        }
+
+        @Override
+        public void error(Exception e) {
+
         }
     }
 
@@ -345,6 +380,9 @@ public class TransferService extends Service{
             e.printStackTrace();
         }
         isRunning = false;
+        //关闭wifi
+        WifiController wifiController = new WifiController(TransferService.this);
+        wifiController.setWifiStatus(false);
         //关闭服务
         stopSelf();
     }

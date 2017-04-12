@@ -71,19 +71,13 @@ public class ProgressActivity extends BaseActivity {
         listView.setAdapter(adapter);
     }
 
-    public void onEventMainThread(List<EventMessageForClient> clients){
+    public void onEventMainThread(EventMessageForClient client){
         Log.d(TAG, "收到更新的进度");
         //定义暂存数据列表(主要是为了解决线程并发数据更新造成的bug)
         //更新适配器的列表
-        //判断当前是哪个客户端
-        for (EventMessageForClient client : clients){
-            if (tag.equals(client.getTag())){
-                adapterList.clear();
-                adapterList.addAll(client.getList());
-                adapter.notifyDataSetChanged();
-                break;
-            }
-        }
+        adapterList.clear();
+        adapterList.addAll(client.getList());
+        adapter.notifyDataSetChanged();
 
     }
 

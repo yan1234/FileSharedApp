@@ -2,8 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-    tools:context="com.yanling.fileshared.app.transfers.TransferShowActivity">
+    android:orientation="vertical">
 
     <!-- 公共头部 -->
     <include layout="@layout/activity_header" />

@@ -44,6 +44,7 @@ dependencies {
     compile 'com.yanling.android:scanlibrary:1.0'
     compile 'com.yanling.android.view:progress:1.0'
     compile 'com.yanling.android.view:imageshow:1.0'
+    compile 'com.yanling.android.popdialog:bottommenu:1.0'
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.android.support:support-v4:22.1.1'
     compile 'com.squareup.okhttp:okhttp:2.4.0'

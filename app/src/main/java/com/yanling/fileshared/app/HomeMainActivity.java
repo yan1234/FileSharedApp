@@ -9,11 +9,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.yanling.android.dialog.popdialog.bottommenu.BottomMenuDialog;
+import com.yanling.android.scanlibrary.ScanCameraActivity;
 import com.yanling.fileshared.R;
 import com.yanling.fileshared.app.main.AppFragment;
 import com.yanling.fileshared.app.main.MusicFragment;
@@ -21,14 +25,11 @@ import com.yanling.fileshared.app.main.OtherFragment;
 import com.yanling.fileshared.app.main.PhotoFragment;
 import com.yanling.fileshared.app.main.VideoFragment;
 import com.yanling.fileshared.app.transfers.TransferInitActivity;
-import com.yanling.fileshared.app.transfers.android.SendBetweenAppActivity;
-import com.yanling.fileshared.app.transfers.TransferShowActivity;
 import com.yanling.fileshared.app.transfers.android.entity.QrcodeInfo;
 import com.yanling.fileshared.app.transfers.service.TransferService;
 import com.yanling.fileshared.framework.Constants;
 import com.yanling.fileshared.framework.ui.base.BaseFragment;
 import com.yanling.fileshared.utils.json.JsonUtil;
-import com.yanling.android.scanlibrary.ScanCameraActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -202,12 +203,11 @@ public class HomeMainActivity extends FragmentActivity
                 Toast.makeText(HomeMainActivity.this, "你点击了左侧操作栏", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.home_main_bottom_middle:
-                //底部左侧的操作栏
-                Toast.makeText(HomeMainActivity.this, "你点击了中间操作栏", Toast.LENGTH_SHORT).show();
+                //底部中间的操作栏
                 showTransferDialog();
                 break;
             case R.id.home_main_bottom_right:
-                //底部左侧的操作栏
+                //底部右侧的操作栏
                 Toast.makeText(HomeMainActivity.this, "你点击了右侧操作栏", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.header_right:
@@ -301,6 +301,7 @@ public class HomeMainActivity extends FragmentActivity
             if (resultCode == ScanCameraActivity.SCAN_OK){
                 //获取扫描得到的二维码
                 String code = data.getExtras().getString(ScanCameraActivity.SCAN_CODE);
+                Log.d("HomeMainActivity", ">>>扫描条码为:"+code);
                 //将字符串信息转化为传输实体
                 QrcodeInfo qrcodeInfo = JsonUtil.jsonToObject(code, QrcodeInfo.class);
                 //封装信息传输到服务
@@ -318,10 +319,42 @@ public class HomeMainActivity extends FragmentActivity
      */
     private void showTransferDialog(){
         //构造选择器弹框
+        final BottomMenuDialog dialog = new BottomMenuDialog();
+        final String[] items = {"发送文件到其他Android手机", "接收文件从其他Android手机", "发送文件到电脑", "接收文件从电脑"};
+        dialog.setMenuItems(HomeMainActivity.this, items);
+        dialog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int i, long id) {
+                //表示需要发送文件到其他端（手机或者电脑）
+                if (i == 0 || i == 2) {
+                    //判断是否选中了文件
+                    if (fragments.get(position).getSelectList().size() >= 1) {
+                        //封装待发送的文件路径
+                        Bundle bundle = new Bundle();
+                        bundle.putInt(Constants.BUNDLE_KEY_TRANSFER_TYPE, i);
+                        bundle.putSerializable(Constants.BUNDLE_KEY_TRANSFER, fragments.get(position).getSelectList());
+                        startTransferService(bundle);
+                    } else {
+                        Toast.makeText(HomeMainActivity.this, "请至少选择一个待发送的文件", Toast.LENGTH_SHORT).show();
+                    }
+                }//表示从其他手机扫码接收文件
+                else if (i == 1){
+                    startActivityForResult(new Intent(HomeMainActivity.this, ScanCameraActivity.class), 100);
+                }//表示从电脑端接收文件
+                else if (i == 3){
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(Constants.BUNDLE_KEY_TRANSFER_TYPE, i);
+                    //开启服务
+                    startTransferService(bundle);
+                }
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+        /*//构造选择器弹框
         AlertDialog.Builder builder = new AlertDialog.Builder(HomeMainActivity.this);
         builder.setTitle("请选择传输的类型");
         //设置列表
-        final String[] items = {"发送文件到其他Android手机", "接收文件从其他Android手机", "发送文件到电脑", "接收文件从电脑"};
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -351,7 +384,7 @@ public class HomeMainActivity extends FragmentActivity
             }
         });
         AlertDialog dialog = builder.create();
-        dialog.show();
+        dialog.show();*/
 
     }
 

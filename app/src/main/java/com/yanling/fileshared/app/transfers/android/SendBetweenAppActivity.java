@@ -41,6 +41,8 @@ public class SendBetweenAppActivity extends BaseActivity implements View.OnClick
     private BaseAdapter adapter;
     //定义当前所有客户端进度列表对象
     private List<EventMessageForClient> clients;
+    //定义变量保存当前点击查看详情的哪个客户端
+    private int client_position = -1;
     //二维码图片
     private ImageView image_qrcode;
     //提示文字
@@ -98,6 +100,7 @@ public class SendBetweenAppActivity extends BaseActivity implements View.OnClick
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 //点击每个客户端的传输情况进入到详细的文件进度界面
+                client_position = i;
                 Intent intent = new Intent(SendBetweenAppActivity.this, ProgressActivity.class);
                 intent.putExtra(Constants.BUNDLE_KEY_CLIENT_TAG, clients.get(i).getTag());
                 startActivity(intent);
@@ -159,12 +162,19 @@ public class SendBetweenAppActivity extends BaseActivity implements View.OnClick
 
     /**
      * EventBus消息接收
-     * @param client
+     * @param clients
      */
-    public void onEventMainThread(EventMessageForClient client){
+    public void onEventMainThread(List<EventMessageForClient> clients){
         //更新适配器
-        this.clients.add(client);
+        this.clients.clear();
+        this.clients.addAll(clients);
         adapter.notifyDataSetChanged();
+
+        //判断下当前点击进去的是客户端
+        if (client_position != -1){
+            //发送指定客户端的数据到该界面
+            EventBus.getDefault().post(clients.get(client_position));
+        }
     }
 
 
