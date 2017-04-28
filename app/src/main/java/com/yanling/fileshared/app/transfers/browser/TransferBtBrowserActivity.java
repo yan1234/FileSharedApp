@@ -46,7 +46,7 @@ public class TransferBtBrowserActivity extends BaseActivity{
         tv_connect_wifi.setText("名称: " + qrcodeInfo.getSsid()
                 + ", 密码: " + qrcodeInfo.getPreSharedKey());
         tv_download_url.setText("http://192.168.43.1:"+qrcodeInfo.getHostPort() + "/download.html");
-        tv_upload_url.setText("http://192.168.43.1:"+qrcodeInfo.getHostPort() + "/upload.html");
+        tv_upload_url.setText("http://192.168.43.1:"+qrcodeInfo.getHostPort() + "/upload.bak.html");
     }
 
     private void initEvent(){
