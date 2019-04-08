@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- 长按选择颜色 -->
-    <color name="long_click_selected">#B0C4DE</color>
-    <color name="long_click_cancel">#FFFFFF</color>
-
-    <!-- Fragment背景色 -->
-    <color name="background_fragment">#FFFFFF</color>
-</resources>
